@@ -1,0 +1,123 @@
+@import 'OpenColors.css';
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font-family: OCR-A, monospace;
+}
+
+:root {
+	--vmin: 1dvmin;
+	--vmax: 1dvmax;
+
+	--board-size: calc(98 * var(--vmin));
+	--cell-size: calc(0.95 * var(--board-size) / 12);
+
+	--controller-width: calc(75 * var(--vmin));
+	--controller-height: calc(15 * var(--vmin));
+	--ability-width: calc(14 * var(--vmin));
+}
+
+body {
+	/* overscroll-behavior: contain; */
+	background-color: var(--oc-gray-9);
+}
+
+.container {
+	inset: 0;
+
+	width: 100dvw;
+	height: 100dvh;
+
+	display: grid;
+	place-items: center;
+	grid-auto-flow: row;
+
+	background-color: var(--oc-gray-9);
+}
+
+.board {
+	width: var(--board-size);
+	aspect-ratio: 1 / 1;
+	border-radius: calc(0.25 * var(--vmin));
+
+	display: grid;
+	place-items: center;
+
+	grid-template-columns: repeat(12, 1fr);
+
+	background-color: var(--oc-gray-7);
+}
+
+.cell {
+	width: var(--cell-size);
+	aspect-ratio: 1 / 1;
+	border-radius: calc(0.25 * var(--vmin));
+}
+
+.controller {
+	width: var(--controller-width);
+	height: var(--controller-height);
+
+	display: grid;
+	place-items: center;
+	grid-auto-flow: column;
+
+	background-color: var(--oc-gray-7);
+}
+
+.ability {
+	width: var(--ability-width);
+	aspect-ratio: 1 / 1;
+
+	display: grid;
+	place-items: center;
+	overflow: hidden;
+
+	font-size: calc(var(--ability-width) * 0.75);
+	color: var(--oc-gray-5);
+
+	background-color: var(--oc-gray-8);
+}
+
+.ability.player-green {
+	transform: rotate(180deg);
+}
+
+.ability.player-blue {
+	transform: rotate(0deg);
+}
+
+@media (orientation: landscape) {
+	.container {
+		grid-auto-flow: column;
+	}
+
+	.board {
+		transform: rotate(-90deg);
+	}
+
+	.controller {
+		width: var(--controller-height);
+		height: var(--controller-width);
+
+		grid-auto-flow: row;
+	}
+
+	.ability.player-green {
+		transform: rotate(-90deg);
+	}
+
+	.ability.player-blue {
+		transform: rotate(90deg);
+	}
+
+	.controller.player-green {
+		transform: rotate(-180deg);
+	}
+
+	.controller.player-blue {
+		transform: rotate(180deg);
+	}
+}
