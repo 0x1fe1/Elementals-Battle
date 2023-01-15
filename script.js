@@ -14,6 +14,8 @@
 // updateViewportSize()
 // window.addEventListener('resize', updateViewportSize)
 
+const elementList = ['air', 'fire', 'earth', 'water', 'nature', 'energy']
+
 const cells = Array.from(document.querySelectorAll('.cell'))
 
 cells.forEach((cell, i) => {
@@ -24,3 +26,14 @@ cells.forEach((cell, i) => {
 })
 
 // console.log(cells)
+
+// for (
+// 	let a = -Math.PI / 2, r = 0.95;
+// 	a < Math.PI * 2 - Math.PI / 2;
+// 	a += (Math.PI * 2) / 5
+// ) {
+// 	console.log(
+// 		Math.round(Math.cos(a) * r * 50) + 50,
+// 		Math.round(Math.sin(a) * r * 50) + 50,
+// 	)
+// }

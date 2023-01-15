@@ -11,16 +11,16 @@
 	--vmin: 1dvmin;
 	--vmax: 1dvmax;
 
-	--board-size: calc(98 * var(--vmin));
+	--board-size: calc(95 * var(--vmin));
 	--cell-size: calc(0.95 * var(--board-size) / 12);
 
-	--controller-width: calc(75 * var(--vmin));
-	--controller-height: calc(15 * var(--vmin));
-	--ability-width: calc(14 * var(--vmin));
+	--controller-width: calc(60 * var(--vmin));
+	--controller-height: calc(12 * var(--vmin));
+	--ability-width: calc(0.9 * var(--controller-height));
 }
 
 body {
-	/* overscroll-behavior: contain; */
+	overscroll-behavior: contain;
 	background-color: var(--oc-gray-9);
 }
 
@@ -53,7 +53,11 @@ body {
 .cell {
 	width: var(--cell-size);
 	aspect-ratio: 1 / 1;
-	border-radius: calc(0.25 * var(--vmin));
+	border-radius: calc(0.33 * var(--vmin));
+
+	overflow: hidden;
+	display: grid;
+	place-items: center;
 }
 
 .controller {
@@ -120,4 +124,39 @@ body {
 	.controller.player-blue {
 		transform: rotate(180deg);
 	}
+}
+
+.cell:not([data-level='0'])::after {
+	content: '';
+	width: var(--cell-size);
+	aspect-ratio: 1 / 1;
+}
+
+.cell[data-level='1']::after {
+	clip-path: polygon(50% 20%, 85% 80%, 15% 80%);
+}
+.cell[data-level='2']::after {
+	clip-path: polygon(50% 10%, 90% 50%, 50% 90%, 10% 50%);
+}
+.cell[data-level='3']::after {
+	clip-path: polygon(50% 8%, 93% 39%, 76% 89%, 24% 89%, 7% 39%);
+}
+
+.cell[data-element='air']::after {
+	background: hsl(170, 100%, 80%);
+}
+.cell[data-element='fire']::after {
+	background: hsl(15, 100%, 50%);
+}
+.cell[data-element='earth']::after {
+	background: hsl(20, 60%, 20%);
+}
+.cell[data-element='water']::after {
+	background: hsl(220, 80%, 50%);
+}
+.cell[data-element='nature']::after {
+	background: hsl(140, 100%, 50%);
+}
+.cell[data-element='energy']::after {
+	background: hsl(300, 80%, 30%);
 }
