@@ -1,39 +1,71 @@
-// function updateViewportSize() {
-// 	const [vh, vw] = [window.innerHeight * 0.01, window.innerWidth * 0.01]
-// 	document.documentElement.style.setProperty('--vw', `${vw}px`)
-// 	document.documentElement.style.setProperty('--vh', `${vh}px`)
-// 	document.documentElement.style.setProperty(
-// 		'--vmin',
-// 		`${Math.min(vw, vh)}px`,
-// 	)
-// 	document.documentElement.style.setProperty(
-// 		'--vmax',
-// 		`${Math.max(vw, vh)}px`,
-// 	)
-// }
-// updateViewportSize()
-// window.addEventListener('resize', updateViewportSize)
+//* INITIALIZATION
 
-const elementList = ['air', 'fire', 'earth', 'water', 'nature', 'energy']
+generate_cells(document.querySelector('.board'))
 
 const cells = Array.from(document.querySelectorAll('.cell'))
 
 cells.forEach((cell, i) => {
-	const [x, y] = [i % 12, (i - (i % 12)) / 12]
-	cell.style.backgroundColor = `var(--cc-${
-		x % 2 === y % 2 ? 'light' : 'dark'
-	}-${i < 72 ? 'green' : 'blue'})`
+
+	const [x, y] = [(i % 12) % 2, ((i - (i % 12)) / 12) % 2]
+
+	if (i < 72) {
+
+		if (x === y) cell.style.backgroundColor = 'var(--cc-light-green)'
+
+		if (x !== y) cell.style.backgroundColor = 'var(--cc-dark-green)'
+
+		cell.style.transform += 'rotate(180deg)'
+
+	} else {
+
+		if (x === y) cell.style.backgroundColor = 'var(--cc-light-blue)'
+
+		if (x !== y) cell.style.backgroundColor = 'var(--cc-dark-blue)'
+
+	}
+
+})
+
+cells.forEach((cell, i) => {
+
+	if (random() < 0.33) {
+
+		const element = random(Object.values(ELEMENTS))
+
+		const level = random(LEVELS)
+
+		const health = random('i', 1, MAX_HEALTH[level - 1])
+
+		// console.log({ cell, dataset: cell.dataset, e, l, h })
+
+		insert_elemental({ cell, element, level, health })
+
+	}
+
 })
 
 // console.log(cells)
 
-// for (
-// 	let a = -Math.PI / 2, r = 0.95;
-// 	a < Math.PI * 2 - Math.PI / 2;
-// 	a += (Math.PI * 2) / 5
-// ) {
-// 	console.log(
-// 		Math.round(Math.cos(a) * r * 50) + 50,
-// 		Math.round(Math.sin(a) * r * 50) + 50,
-// 	)
-// }
+// insert_elemental({
+
+// 	cell: cells[0],
+
+// 	element: ELEMENTS.AIR,
+
+// 	level: LEVELS[2],
+
+// 	health: MAX_HEALTH[2],
+
+// })
+
+// insert_elemental({
+
+// 	cell: cells[0],
+
+// 	element: ELEMENTS.AIR,
+
+// 	level: LEVELS[2],
+
+// 	health: MAX_HEALTH[2],
+
+// })
