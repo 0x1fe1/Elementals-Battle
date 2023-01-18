@@ -7,172 +7,106 @@
 		<title>Elementals</title>
 		<link rel="stylesheet" href="OpenColors.css" />
 		<link rel="stylesheet" href="style.css" />
-		<script defer src="script.js"></script>
+		<script defer src="objects.js"></script>
+		<script defer src="functions.js"></script>
+		<script defer src="scripts.js"></script>
 	</head>
 	<body>
 		<div class="container">
 			<div class="controller player-green">
-				<div class="ability player-green" id="ag-5">5</div>
-				<div class="ability player-green" id="ag-4">4</div>
-				<div class="ability player-green" id="ag-3">3</div>
-				<div class="ability player-green" id="ag-2">2</div>
-				<div class="ability player-green" id="ag-1">1</div>
+				<div class="action-selector">
+					<div class="action confirm">
+						<svg
+							viewBox="0 0 32 32"
+							xmlns="http://www.w3.org/2000/svg">
+							<path />
+						</svg>
+					</div>
+					<div class="action move">
+						<svg
+							viewBox="0 0 16 16"
+							xmlns="http://www.w3.org/2000/svg">
+							<path />
+						</svg>
+					</div>
+					<div class="action attack">
+						<svg
+							viewBox="0 0 256 256"
+							xmlns="http://www.w3.org/2000/svg">
+							<path />
+						</svg>
+					</div>
+				</div>
+				<div class="ability-selector">
+					<div class="ability" id="ag-5">5</div>
+					<div class="ability" id="ag-4">4</div>
+					<div class="ability" id="ag-3">3</div>
+					<div class="ability" id="ag-2">2</div>
+					<div class="ability" id="ag-1">1</div>
+				</div>
 			</div>
 
-			<div class="board">
-				<div class="cell" data-level="1" data-element="air"></div>
-				<div class="cell" data-level="2" data-element="air"></div>
-				<div class="cell" data-level="3" data-element="air"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="1" data-element="fire"></div>
-				<div class="cell" data-level="2" data-element="fire"></div>
-				<div class="cell" data-level="3" data-element="fire"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="1" data-element="earth"></div>
-				<div class="cell" data-level="2" data-element="earth"></div>
-				<div class="cell" data-level="3" data-element="earth"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="1" data-element="water"></div>
-				<div class="cell" data-level="2" data-element="water"></div>
-				<div class="cell" data-level="3" data-element="water"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="1" data-element="nature"></div>
-				<div class="cell" data-level="2" data-element="nature"></div>
-				<div class="cell" data-level="3" data-element="nature"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="1" data-element="energy"></div>
-				<div class="cell" data-level="2" data-element="energy"></div>
-				<div class="cell" data-level="3" data-element="energy"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-				<div class="cell" data-level="0"></div>
-			</div>
+			<div class="board"></div>
 
 			<div class="controller player-blue">
-				<div class="ability player-blue" id="ab-1">1</div>
-				<div class="ability player-blue" id="ab-2">2</div>
-				<div class="ability player-blue" id="ab-3">3</div>
-				<div class="ability player-blue" id="ab-4">4</div>
-				<div class="ability player-blue" id="ab-5">5</div>
+				<div class="ability-selector">
+					<div class="ability" id="ab-1">1</div>
+					<div class="ability" id="ab-2">2</div>
+					<div class="ability" id="ab-3">3</div>
+					<div class="ability" id="ab-4">4</div>
+					<div class="ability" id="ab-5">5</div>
+				</div>
+				<div class="action-selector">
+					<div class="action attack">
+						<svg
+							viewBox="0 0 256 256"
+							xmlns="http://www.w3.org/2000/svg">
+							<path />
+						</svg>
+					</div>
+					<div class="action move">
+						<svg
+							viewBox="0 0 16 16"
+							xmlns="http://www.w3.org/2000/svg">
+							<path />
+						</svg>
+					</div>
+					<div class="action confirm">
+						<svg
+							viewBox="0 0 32 32"
+							xmlns="http://www.w3.org/2000/svg">
+							<path />
+						</svg>
+					</div>
+				</div>
 			</div>
 		</div>
+
+		<svg width="0" height="0" class="gradients">
+			<radialgradient id="gradient-air">
+				<stop offset="10%" />
+				<stop offset="90%" />
+			</radialgradient>
+			<radialgradient id="gradient-fire">
+				<stop offset="10%" />
+				<stop offset="90%" />
+			</radialgradient>
+			<radialgradient id="gradient-rock">
+				<stop offset="10%" />
+				<stop offset="90%" />
+			</radialgradient>
+			<radialgradient id="gradient-water">
+				<stop offset="10%" />
+				<stop offset="90%" />
+			</radialgradient>
+			<radialgradient id="gradient-nature">
+				<stop offset="10%" />
+				<stop offset="90%" />
+			</radialgradient>
+			<radialgradient id="gradient-energy">
+				<stop offset="10%" />
+				<stop offset="90%" />
+			</radialgradient>
+		</svg>
 	</body>
 </html>

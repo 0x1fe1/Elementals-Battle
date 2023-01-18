@@ -14,9 +14,13 @@
 	--board-size: calc(95 * var(--vmin));
 	--cell-size: calc(0.95 * var(--board-size) / 12);
 
-	--controller-width: calc(60 * var(--vmin));
-	--controller-height: calc(12 * var(--vmin));
-	--ability-width: calc(0.9 * var(--controller-height));
+	--ability-selector-width: calc(60 * var(--vmin));
+	--ability-selector-height: calc(12 * var(--vmin));
+	--ability-size: calc(0.9 * var(--ability-selector-height));
+
+	--action-selector-width: calc(36 * var(--vmin));
+	--action-selector-height: calc(12 * var(--vmin));
+	--action-size: calc(0.9 * var(--action-selector-height));
 }
 
 body {
@@ -53,110 +57,348 @@ body {
 .cell {
 	width: var(--cell-size);
 	aspect-ratio: 1 / 1;
-	border-radius: calc(0.33 * var(--vmin));
+	border-radius: calc(var(--vmin) / 3);
 
 	overflow: hidden;
 	display: grid;
 	place-items: center;
+
+	box-shadow: 0 0 0 calc(var(--vmin) / 3) var(--oc-gray-7);
 }
 
 .controller {
-	width: var(--controller-width);
-	height: var(--controller-height);
+	display: grid;
+	grid-auto-flow: row;
+	place-items: center;
+}
+
+/*   abilities fuckery   */
+.ability-selector {
+	width: var(--ability-selector-width);
+	height: var(--ability-selector-height);
+	border-radius: calc(0.1 * var(--ability-size));
 
 	display: grid;
-	place-items: center;
+	place-content: space-evenly;
 	grid-auto-flow: column;
 
 	background-color: var(--oc-gray-7);
 }
 
 .ability {
-	width: var(--ability-width);
+	width: var(--ability-size);
 	aspect-ratio: 1 / 1;
+	border-radius: calc(0.1 * var(--ability-size));
 
 	display: grid;
 	place-items: center;
 	overflow: hidden;
 
-	font-size: calc(var(--ability-width) * 0.75);
+	font-size: calc(var(--ability-size) * 0.75);
 	color: var(--oc-gray-5);
 
 	background-color: var(--oc-gray-8);
+	box-shadow: 0 0 0 calc(0.05 * var(--ability-size)) var(--oc-gray-7);
+
+	z-index: 0;
 }
 
-.ability.player-green {
+.controller.player-green .ability {
 	transform: rotate(180deg);
 }
 
-.ability.player-blue {
+.controller.player-blue .ability {
 	transform: rotate(0deg);
 }
 
+/*   actions fuckery   */
+.action-selector {
+	width: var(--action-selector-width);
+	height: var(--action-selector-height);
+	border-radius: calc(0.1 * var(--action-size));
+
+	display: grid;
+	place-content: space-evenly;
+	grid-auto-flow: column;
+
+	background-color: var(--oc-gray-7);
+}
+
+.action {
+	width: var(--action-size);
+	aspect-ratio: 1 / 1;
+	border-radius: calc(0.1 * var(--action-size));
+
+	display: grid;
+	place-items: center;
+	overflow: hidden;
+
+	background-color: var(--oc-gray-8);
+	box-shadow: 0 0 0 calc(0.05 * var(--action-size)) var(--oc-gray-7);
+
+	z-index: 0;
+}
+
+.action svg {
+	width: 90%;
+	height: 90%;
+}
+.action.attack svg {
+	scale: 0.9;
+}
+.action.move svg {
+	scale: 0.8;
+}
+.action.confirm svg {
+	scale: 1.8;
+}
+
+.action path {
+	fill: var(--oc-gray-5);
+}
+.action.attack path {
+	d: path(
+		'M221.65723,34.34326A8.00246,8.00246,0,0,0,216,32h-.02539l-63.79883.20117A8.00073,8.00073,0,0,0,146.0332,35.106L75.637,120.32275,67.31348,111.999A16.02162,16.02162,0,0,0,44.68555,112L32.001,124.68555A15.99888,15.99888,0,0,0,32,147.31348l20.88672,20.88769L22.94531,198.14258a16.01777,16.01777,0,0,0,.001,22.62695l12.28418,12.28418a16.00007,16.00007,0,0,0,22.62793,0L87.79883,203.1123,108.68652,224.001A16.02251,16.02251,0,0,0,131.31445,224L143.999,211.31445A15.99888,15.99888,0,0,0,144,188.68652l-8.32324-8.32324,85.21679-70.39648a8.00125,8.00125,0,0,0,2.90528-6.14258L224,40.02539A8.001,8.001,0,0,0,221.65723,34.34326Zm-13.84668,65.67822-83.49829,68.97706L111.314,156l54.34327-54.34277a8.00053,8.00053,0,0,0-11.31446-11.31446L100,144.686,87.00195,131.6875,155.97852,48.189l51.99609-.16357Z'
+	);
+}
+.action.move path {
+	d: path(
+		'M7.463.057A.748.748 0 007.22.22l-2 2a.75.75 0 001.06 1.06L7 2.56V7H2.56l.72-.72a.75.75 0 00-1.06-1.06l-2 2a.748.748 0 000 1.06l2 2a.75.75 0 101.06-1.06l-.72-.72H7v4.44l-.72-.72a.75.75 0 00-1.06 1.06l2 2a.748.748 0 001.06 0l2-2a.75.75 0 10-1.06-1.06l-.72.72V8.5h4.44l-.72.72a.75.75 0 101.06 1.06l2-2a.748.748 0 000-1.06l-2-2a.75.75 0 10-1.06 1.06l.72.72H8.5V2.56l.72.72a.75.75 0 101.06-1.06l-2-2a.748.748 0 00-.817-.163z'
+	);
+}
+.action.confirm path {
+	d: path(
+		'M22.667 11.241l-8.559 8.299-2.998-2.998c-0.312-0.312-0.818-0.312-1.131 0s-0.312 0.818 0 1.131l3.555 3.555c0.156 0.156 0.361 0.234 0.565 0.234 0.2 0 0.401-0.075 0.556-0.225l9.124-8.848c0.317-0.308 0.325-0.814 0.018-1.131-0.309-0.318-0.814-0.325-1.131-0.018z'
+	);
+}
+
+.controller.player-green .action {
+	rotate: 180deg;
+}
+
+.controller.player-blue .action {
+	rotate: 0deg;
+}
+
+:is(.cell, .ability, .action) {
+	filter: brightness(100%);
+	scale: 1;
+	z-index: 0;
+
+	transition: 0.1s;
+}
+:is(.cell, .ability, .action):hover {
+	filter: brightness(120%);
+	scale: 1.2;
+	z-index: 10;
+
+	transition: 0.1s;
+}
+
+/*   landscape mode fuckery   */
 @media (orientation: landscape) {
 	.container {
 		grid-auto-flow: column;
 	}
 
 	.board {
-		transform: rotate(-90deg);
+		rotate: -90deg;
 	}
 
 	.controller {
-		width: var(--controller-height);
-		height: var(--controller-width);
-
 		grid-auto-flow: row;
 	}
 
-	.ability.player-green {
-		transform: rotate(-90deg);
-	}
+	.ability-selector {
+		height: var(--ability-selector-height);
+		width: var(--ability-selector-width);
 
-	.ability.player-blue {
-		transform: rotate(90deg);
+		/* grid-auto-flow: row; */
 	}
+	.action-selector {
+		height: var(--action-selector-height);
+		width: var(--action-selector-width);
 
+		/* grid-auto-flow: row; */
+	}
 	.controller.player-green {
-		transform: rotate(-180deg);
+		rotate: -90deg;
 	}
-
 	.controller.player-blue {
-		transform: rotate(180deg);
+		rotate: -90deg;
 	}
+
+	/* .controller.player-green .ability {
+		rotate: 90deg;
+	}
+	.controller.player-blue .ability {
+		rotate: 90deg;
+	}
+	.controller.player-green .action {
+		rotate: -90deg;
+	}
+	.controller.player-blue .action {
+		rotate: 90deg;
+	} */
 }
 
-.cell:not([data-level='0'])::after {
-	content: '';
+/*   elemental svg fuckery   */
+svg {
+	overflow: hidden;
+	position: absolute;
+}
+
+.cell[data-occupied='false'] svg {
+	display: none;
+}
+
+.elemental {
 	width: var(--cell-size);
-	aspect-ratio: 1 / 1;
+	height: var(--cell-size);
+}
+.elemental-shape {
+	stroke: var(--oc-gray-8);
+	stroke-width: 0.05;
 }
 
-.cell[data-level='1']::after {
-	clip-path: polygon(50% 20%, 85% 80%, 15% 80%);
+/*   elemental gradient color fuckery   */
+.cell[data-element='air'] .elemental-shape {
+	fill: url('#gradient-air');
 }
-.cell[data-level='2']::after {
-	clip-path: polygon(50% 10%, 90% 50%, 50% 90%, 10% 50%);
+.cell[data-element='fire'] .elemental-shape {
+	fill: url('#gradient-fire');
 }
-.cell[data-level='3']::after {
-	clip-path: polygon(50% 8%, 93% 39%, 76% 89%, 24% 89%, 7% 39%);
+.cell[data-element='rock'] .elemental-shape {
+	fill: url('#gradient-rock');
+}
+.cell[data-element='water'] .elemental-shape {
+	fill: url('#gradient-water');
+}
+.cell[data-element='nature'] .elemental-shape {
+	fill: url('#gradient-nature');
+}
+.cell[data-element='energy'] .elemental-shape {
+	fill: url('#gradient-energy');
 }
 
-.cell[data-element='air']::after {
-	background: hsl(170, 100%, 80%);
+#gradient-air stop:first-child {
+	stop-color: var(--cc-gradient-air-1);
 }
-.cell[data-element='fire']::after {
-	background: hsl(15, 100%, 50%);
+#gradient-air stop:last-child {
+	stop-color: var(--cc-gradient-air-2);
 }
-.cell[data-element='earth']::after {
-	background: hsl(20, 60%, 20%);
+#gradient-fire stop:first-child {
+	stop-color: var(--cc-gradient-fire-1);
 }
-.cell[data-element='water']::after {
-	background: hsl(220, 80%, 50%);
+#gradient-fire stop:last-child {
+	stop-color: var(--cc-gradient-fire-2);
 }
-.cell[data-element='nature']::after {
-	background: hsl(140, 100%, 50%);
+#gradient-rock stop:first-child {
+	stop-color: var(--cc-gradient-rock-1);
 }
-.cell[data-element='energy']::after {
-	background: hsl(300, 80%, 30%);
+#gradient-rock stop:last-child {
+	stop-color: var(--cc-gradient-rock-2);
+}
+#gradient-water stop:first-child {
+	stop-color: var(--cc-gradient-water-1);
+}
+#gradient-water stop:last-child {
+	stop-color: var(--cc-gradient-water-2);
+}
+#gradient-nature stop:first-child {
+	stop-color: var(--cc-gradient-nature-1);
+}
+#gradient-nature stop:last-child {
+	stop-color: var(--cc-gradient-nature-2);
+}
+#gradient-energy stop:first-child {
+	stop-color: var(--cc-gradient-energy-1);
+}
+#gradient-energy stop:last-child {
+	stop-color: var(--cc-gradient-energy-2);
+}
+
+/*   elemental shape fuckery   */
+.cell[data-level='1'] .elemental-shape {
+	d: path(
+		'M 0.57,0.23 Q 0.5,0.1 0.43,0.23 L 0.14,0.73 Q 0.07,0.85 0.21,0.85 L 0.79,0.85 Q 0.94,0.85 0.87,0.73 L 0.57,0.23 Z'
+	);
+
+	scale: 0.7;
+	translate: 15% 10%;
+}
+.cell[data-level='2'] .elemental-shape {
+	d: path(
+		'M 0.59,0.09 Q 0.5,0 0.42,0.09 L 0.09,0.42 Q 0,0.5 0.09,0.59 L 0.42,0.92 Q 0.5,1 0.59,0.92 L 0.92,0.59 Q 1,0.5 0.92,0.42 L 0.59,0.09 Z'
+	);
+
+	scale: 0.8;
+	translate: 10% 10%;
+}
+.cell[data-level='3'] .elemental-shape {
+	d: path(
+		'M 0.58,0.06 Q 0.5,0 0.42,0.06 L 0.1,0.29 Q 0.03,0.35 0.05,0.44 L 0.18,0.81 Q 0.21,0.91 0.31,0.91 L 0.7,0.91 Q 0.8,0.91 0.83,0.81 L 0.95,0.44 Q 0.98,0.35 0.9,0.29 L 0.58,0.06 Z'
+	);
+
+	scale: 0.9;
+	translate: 5% 7.5%;
+}
+
+/*   elemental health fuckery   */
+.elemental-health-boundary {
+	d: path('M 0,0 A 0.5 0.5 0 1 1 0.01,0 Z');
+	fill: var(--cc-elemental-health-boundary-filler);
+	fill-opacity: var(--cc-elemental-health-boundary-filler-opacity);
+	stroke: var(--cc-elemental-health-boundary);
+	stroke-width: 0.075;
+
+	translate: 50% 99%;
+	scale: 0.25;
+}
+
+.elemental-health-life {
+	fill: var(--cc-elemental-health);
+	stroke: none;
+
+	translate: 50% 98%;
+	scale: 0.23;
+}
+
+.cell[data-level='1'][data-health='1'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+
+.cell[data-level='2'][data-health='1'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.5 1 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='2'][data-health='2'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+
+.cell[data-level='3'][data-health='1'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='2'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='3'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.5 1 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='4'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.75 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='5'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.25 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='6'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	translate: 38.5% 75%;
 }

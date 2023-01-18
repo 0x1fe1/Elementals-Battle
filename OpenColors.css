@@ -10,6 +10,32 @@
 	--cc-light-green: var(--oc-green-4);
 	--cc-dark-green: var(--oc-green-7);
 
+	--cc-element-air: var(--oc-cyan-2);
+	--cc-element-fire: var(--oc-orange-7);
+	--cc-element-rock: var(--oc-gray-6);
+	--cc-element-water: var(--oc-blue-5);
+	--cc-element-nature: var(--oc-teal-5);
+	--cc-element-energy: var(--oc-grape-5);
+
+	--cc-gradient-air-1: var(--oc-cyan-4);
+	--cc-gradient-air-2: var(--oc-cyan-2);
+	--cc-gradient-fire-1: var(--oc-orange-6);
+	--cc-gradient-fire-2: var(--oc-red-7);
+	--cc-gradient-rock-1: var(--oc-gray-6);
+	--cc-gradient-rock-2: var(--nord3);
+	--cc-gradient-water-1: var(--oc-indigo-8);
+	--cc-gradient-water-2: var(--oc-blue-5);
+	--cc-gradient-nature-1: var(--oc-green-5);
+	--cc-gradient-nature-2: var(--oc-teal-6);
+	--cc-gradient-energy-1: var(--oc-grape-5);
+	--cc-gradient-energy-2: var(--oc-violet-6);
+
+	--cc-elemental-health-boundary: hsl(220, 80%, 30%);
+	--cc-elemental-health-boundary-filler: var(--oc-gray-9);
+	--cc-elemental-health-boundary-filler-opacity: 0.75;
+	--cc-elemental-health: hsl(120, 80%, 60%);
+	--cc-elemental-hit: hsl(0, 80%, 60%);
+
 	--cc-gray-10: #141618;
 	--cc-gray-10-rgb: 20, 22, 24;
 
