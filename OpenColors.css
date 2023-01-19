@@ -33,8 +33,8 @@
 	--cc-elemental-health-boundary: hsl(220, 80%, 30%);
 	--cc-elemental-health-boundary-filler: var(--oc-gray-9);
 	--cc-elemental-health-boundary-filler-opacity: 0.75;
-	--cc-elemental-health: hsl(120, 80%, 60%);
-	--cc-elemental-hit: hsl(0, 80%, 60%);
+	--cc-elemental-health-life: hsl(120, 80%, 60%);
+	--cc-elemental-health-hit: hsl(0, 80%, 60%);
 
 	--cc-gray-10: #141618;
 	--cc-gray-10-rgb: 20, 22, 24;

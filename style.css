@@ -11,32 +11,43 @@
 	--vmin: 1dvmin;
 	--vmax: 1dvmax;
 
-	--board-size: calc(95 * var(--vmin));
-	--cell-size: calc(0.95 * var(--board-size) / 12);
+	--container-width: calc(100 * var(--vmin));
+	--container-height: calc(100 * var(--vmax));
 
-	--ability-selector-width: calc(60 * var(--vmin));
-	--ability-selector-height: calc(12 * var(--vmin));
-	--ability-size: calc(0.9 * var(--ability-selector-height));
+	--cell-size: calc(7.5 * var(--vmin));
+	--board-size: calc(13 * var(--cell-size));
 
-	--action-selector-width: calc(36 * var(--vmin));
-	--action-selector-height: calc(12 * var(--vmin));
-	--action-size: calc(0.9 * var(--action-selector-height));
+	--ability-size: calc(12 * var(--vmin));
+	--ability-selector-width: calc(5 * var(--ability-size));
+	--ability-selector-height: calc(1 * var(--ability-size));
+
+	--action-size: calc(12 * var(--vmin));
+	--action-selector-width: calc(3 * var(--action-size));
+	--action-selector-height: calc(1 * var(--action-size));
+
+	--controller-width: max(
+		var(--ability-selector-width),
+		var(--action-selector-width)
+	);
+	--controller-height: calc(
+		var(--ability-selector-height) + var(--action-selector-height)
+	);
 }
 
 body {
-	overscroll-behavior: contain;
+	/* overscroll-behavior: contain; */
 	background-color: var(--oc-gray-9);
 }
 
 .container {
 	inset: 0;
 
-	width: 100dvw;
-	height: 100dvh;
+	width: var(--container-width);
+	height: var(--container-height);
 
 	display: grid;
-	place-items: center;
 	grid-auto-flow: row;
+	place-items: center;
 
 	background-color: var(--oc-gray-9);
 }
@@ -48,6 +59,7 @@ body {
 
 	display: grid;
 	place-items: center;
+	place-content: space-evenly;
 
 	grid-template-columns: repeat(12, 1fr);
 
@@ -67,22 +79,24 @@ body {
 }
 
 .controller {
+	width: var(--controller-width);
+	height: var(--controller-height);
+
+	border-radius: calc(0.8 * var(--action-size));
+
 	display: grid;
-	grid-auto-flow: row;
 	place-items: center;
+
+	background-color: var(--oc-gray-7);
 }
 
 /*   abilities fuckery   */
 .ability-selector {
-	width: var(--ability-selector-width);
-	height: var(--ability-selector-height);
 	border-radius: calc(0.1 * var(--ability-size));
 
 	display: grid;
 	place-content: space-evenly;
 	grid-auto-flow: column;
-
-	background-color: var(--oc-gray-7);
 }
 
 .ability {
@@ -98,32 +112,28 @@ body {
 	color: var(--oc-gray-5);
 
 	background-color: var(--oc-gray-8);
-	box-shadow: 0 0 0 calc(0.05 * var(--ability-size)) var(--oc-gray-7);
+	box-shadow: 0 0 0 calc(0.05 * var(--ability-size)) var(--oc-gray-7) inset;
 
 	z-index: 0;
 }
 
 .controller.player-green .ability {
-	transform: rotate(180deg);
+	rotate: 180deg;
+	color: var(--oc-green-6);
 }
-
 .controller.player-blue .ability {
-	transform: rotate(0deg);
+	rotate: 0deg;
+	color: var(--oc-blue-6);
 }
 
 /*   actions fuckery   */
 .action-selector {
-	width: var(--action-selector-width);
-	height: var(--action-selector-height);
 	border-radius: calc(0.1 * var(--action-size));
 
 	display: grid;
 	place-content: space-evenly;
 	grid-auto-flow: column;
-
-	background-color: var(--oc-gray-7);
 }
-
 .action {
 	width: var(--action-size);
 	aspect-ratio: 1 / 1;
@@ -134,7 +144,7 @@ body {
 	overflow: hidden;
 
 	background-color: var(--oc-gray-8);
-	box-shadow: 0 0 0 calc(0.05 * var(--action-size)) var(--oc-gray-7);
+	box-shadow: 0 0 0 calc(0.05 * var(--action-size)) var(--oc-gray-7) inset;
 
 	z-index: 0;
 }
@@ -150,11 +160,14 @@ body {
 	scale: 0.8;
 }
 .action.confirm svg {
-	scale: 1.8;
+	scale: 1.5;
 }
 
-.action path {
-	fill: var(--oc-gray-5);
+.controller.player-green .action path {
+	fill: var(--oc-green-6);
+}
+.controller.player-blue .action path {
+	fill: var(--oc-blue-6);
 }
 .action.attack path {
 	d: path(
@@ -175,7 +188,6 @@ body {
 .controller.player-green .action {
 	rotate: 180deg;
 }
-
 .controller.player-blue .action {
 	rotate: 0deg;
 }
@@ -187,7 +199,7 @@ body {
 
 	transition: 0.1s;
 }
-:is(.cell, .ability, .action):hover {
+:is(.cell, .ability, .action):is(:hover, [data-selected='true']) {
 	filter: brightness(120%);
 	scale: 1.2;
 	z-index: 10;
@@ -195,51 +207,83 @@ body {
 	transition: 0.1s;
 }
 
+/*   modal fuckery   */
+.modal {
+	display: none;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+	background-color: #fefefe;
+	margin: 15% auto; /* 15% from the top and centered */
+	padding: 20px;
+	border: 1px solid #888;
+	width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.open-modal {
+	position: fixed;
+	display: grid;
+	place-items: center;
+
+	left: calc(1 * var(--vmin));
+	top: calc(1 * var(--vmin));
+	width: calc(10 * var(--vmin));
+	height: calc(10 * var(--vmin));
+
+	rotate: 180deg;
+	border-radius: calc(3 * var(--vmin));
+
+	z-index: 1;
+	cursor: pointer;
+
+	color: var(--oc-gray-4);
+	background: var(--oc-gray-8);
+}
+
+.close-modal {
+	color: #aaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.open-modal-mark {
+	width: 80%;
+	height: 80%;
+}
+.open-modal-mark path {
+	d: path('M 4,7 H 20 M 4,12 H 20 M 4,17 H 20');
+	stroke: var(--oc-gray-4);
+	stroke-width: 2.5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
 /*   landscape mode fuckery   */
 @media (orientation: landscape) {
 	.container {
-		grid-auto-flow: column;
+		transform: rotate(270deg);
+		transform-origin: bottom right;
+
+		position: absolute;
+		top: calc(-100 * var(--vmax));
+		left: auto;
+
+		/* overflow: auto; */
 	}
 
-	.board {
-		rotate: -90deg;
-	}
-
-	.controller {
-		grid-auto-flow: row;
-	}
-
-	.ability-selector {
-		height: var(--ability-selector-height);
-		width: var(--ability-selector-width);
-
-		/* grid-auto-flow: row; */
-	}
-	.action-selector {
-		height: var(--action-selector-height);
-		width: var(--action-selector-width);
-
-		/* grid-auto-flow: row; */
-	}
-	.controller.player-green {
-		rotate: -90deg;
-	}
-	.controller.player-blue {
-		rotate: -90deg;
-	}
-
-	/* .controller.player-green .ability {
+	.open-modal {
 		rotate: 90deg;
 	}
-	.controller.player-blue .ability {
-		rotate: 90deg;
-	}
-	.controller.player-green .action {
-		rotate: -90deg;
-	}
-	.controller.player-blue .action {
-		rotate: 90deg;
-	} */
 }
 
 /*   elemental svg fuckery   */
@@ -347,8 +391,7 @@ svg {
 /*   elemental health fuckery   */
 .elemental-health-boundary {
 	d: path('M 0,0 A 0.5 0.5 0 1 1 0.01,0 Z');
-	fill: var(--cc-elemental-health-boundary-filler);
-	fill-opacity: var(--cc-elemental-health-boundary-filler-opacity);
+	fill: none;
 	stroke: var(--cc-elemental-health-boundary);
 	stroke-width: 0.075;
 
@@ -356,8 +399,18 @@ svg {
 	scale: 0.25;
 }
 
+.elemental-health-background {
+	d: path('M 0,0 A 0.5 0.5 0 1 1 0.01,0 Z');
+	fill: var(--cc-elemental-health-boundary-filler);
+	fill-opacity: var(--cc-elemental-health-boundary-filler-opacity);
+	stroke: none;
+
+	translate: 50% 99%;
+	scale: 0.25;
+}
+
 .elemental-health-life {
-	fill: var(--cc-elemental-health);
+	fill: var(--cc-elemental-health-life);
 	stroke: none;
 
 	translate: 50% 98%;
@@ -368,7 +421,6 @@ svg {
 	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
 	translate: 38.5% 75%;
 }
-
 .cell[data-level='2'][data-health='1'] .elemental-health-life {
 	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.5 1 L 0.5,0.5 Z');
 	translate: 38.5% 75%;
@@ -377,7 +429,6 @@ svg {
 	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
 	translate: 38.5% 75%;
 }
-
 .cell[data-level='3'][data-health='1'] .elemental-health-life {
 	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
 	translate: 38.5% 75%;
@@ -401,4 +452,133 @@ svg {
 .cell[data-level='3'][data-health='6'] .elemental-health-life {
 	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
 	translate: 38.5% 75%;
+}
+
+/*   hit fuckery   */
+.elemental-health-hit {
+	fill: var(--cc-elemental-health-hit);
+	stroke: none;
+
+	translate: 50% 98%;
+	scale: 0.23;
+}
+
+/*   hit = 1   */
+.cell[data-level='1'][data-health='1'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 38.5% 36.5%;
+}
+.cell[data-level='2'][data-health='1'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.5 1 L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 38.5% 36.5%;
+}
+.cell[data-level='2'][data-health='2'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.5 1 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.24;
+	translate: 62% 36.5%;
+	rotate: 180deg;
+}
+.cell[data-level='3'][data-health='1'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 37.5% 37.5%;
+}
+.cell[data-level='3'][data-health='2'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 44.5% 47.5%;
+	rotate: -60deg;
+}
+.cell[data-level='3'][data-health='3'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 56.5% 46.5%;
+	rotate: -120deg;
+}
+.cell[data-level='3'][data-health='4'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 62.5% 36%;
+	rotate: -180deg;
+}
+.cell[data-level='3'][data-health='5'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 55.5% 25.5%;
+	rotate: -240deg;
+}
+.cell[data-level='3'][data-health='6'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 43% 26%;
+	rotate: -300deg;
+}
+
+/*   hit = 2   */
+.cell[data-level='2'][data-health='2'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 38.5% 36.5%;
+}
+.cell[data-level='3'][data-health='2'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 37.5% 36.5%;
+}
+.cell[data-level='3'][data-health='3'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 44% 47.5%;
+	rotate: -60deg;
+}
+.cell[data-level='3'][data-health='4'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 56% 46.5%;
+	rotate: -120deg;
+}
+.cell[data-level='3'][data-health='5'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 62.5% 36.5%;
+	rotate: -180deg;
+}
+.cell[data-level='3'][data-health='6'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 55.5% 25%;
+	rotate: -240deg;
+}
+
+/*   hit = 4   */
+.cell[data-level='3'][data-health='4'][data-hit='4'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 38.5% 36.5%;
+}
+.cell[data-level='3'][data-health='5'][data-hit='4'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 44.5% 46.5%;
+	rotate: -60deg;
+}
+.cell[data-level='3'][data-health='6'][data-hit='4'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 56% 46.5%;
+	rotate: -120deg;
 }

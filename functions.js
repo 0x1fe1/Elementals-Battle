@@ -1,30 +1,42 @@
-function insert_elemental({ cell, element, level, health }) {
-	cell.dataset['occupied'] = 'true'
-	cell.dataset['element'] = `${element}`
-	cell.dataset['level'] = `${level}`
-	cell.dataset['health'] = `${health}`
+function insert_elemental({ cell, element, level = 1, health = 1, hit = 0 }) {
+	cell.dataset['occupied'] = true
+	cell.dataset['element'] = element
+	cell.dataset['level'] = level
+	cell.dataset['health'] = health
+	cell.dataset['hit'] = hit
+}
+
+function remove_elemental(cell) {
+	cell.dataset['occupied'] = 'false'
 }
 
 function generate_cells(board) {
 	for (let i = 0; i < 144; i++) {
 		board.innerHTML += `
-            <div 
-                class="cell" 
-                data-occupied="false" 
-                data-element="none" 
-                data-level="0" 
-                data-health="0">
-                <svg
-                    class="elemental"
-                    viewbox="0 0 1 1"
-                    xmlns="http://www.w3.org/2000/svg">
-                        <path class="elemental-shape"></path>
-                        <path class="elemental-health-boundary"></path>
-                        <path class="elemental-health-life"></path>
-                        <path class="elemental-health-hit"></path>
+            <div class="cell" data-occupied="false">
+                <svg class="elemental" viewbox="0 0 1 1">
+                    <path class="elemental-shape"/>
+                    <path class="elemental-health-background"/>
+                    <path class="elemental-health-life"/>
+                    <path class="elemental-health-hit"/>
+                    <path class="elemental-health-boundary"/>
                 </svg>
             </div>`
 	}
+
+	const cells = Array.from(document.querySelectorAll('.cell'))
+	cells.forEach((cell, i) => {
+		const [x, y] = [(i % 12) % 2, ((i - (i % 12)) / 12) % 2]
+
+		if (i < 72) {
+			if (x === y) cell.style.backgroundColor = 'var(--cc-light-green)'
+			if (x !== y) cell.style.backgroundColor = 'var(--cc-dark-green)'
+			cell.style.transform += 'rotate(180deg)'
+		} else {
+			if (x === y) cell.style.backgroundColor = 'var(--cc-light-blue)'
+			if (x !== y) cell.style.backgroundColor = 'var(--cc-dark-blue)'
+		}
+	})
 }
 
 function random() {
