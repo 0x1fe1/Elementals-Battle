@@ -1,0 +1,514 @@
+@import 'OpenColors.css';
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font-family: monospace;
+}
+
+:root {
+	--vmin: 1dvmin;
+	--vmax: 1dvmax;
+
+	--container-width: calc(100 * var(--vmin));
+	--container-height: calc(100 * var(--vmax));
+
+	--cell-size: calc(7.5 * var(--vmin));
+	--board-size: calc(13 * var(--cell-size));
+
+	--action-ability-size: calc(12 * var(--vmin));
+	--controller-width: calc(5 * var(--action-ability-size));
+	--controller-height: calc(2 * var(--action-ability-size));
+}
+
+body {
+	/* overscroll-behavior: contain; */
+	background-color: var(--oc-gray-9);
+}
+
+.container {
+	inset: 0;
+
+	width: var(--container-width);
+	height: var(--container-height);
+
+	display: grid;
+	grid-auto-flow: row;
+	place-items: center;
+
+	background-color: var(--oc-gray-9);
+}
+
+.board {
+	width: var(--board-size);
+	aspect-ratio: 1 / 1;
+	border-radius: calc(0.25 * var(--vmin));
+
+	display: grid;
+	place-items: center;
+	place-content: space-evenly;
+
+	grid-template-columns: repeat(12, 1fr);
+
+	background-color: var(--oc-gray-7);
+}
+
+.cell {
+	width: var(--cell-size);
+	aspect-ratio: 1 / 1;
+	border-radius: calc(var(--vmin) / 3);
+
+	overflow: hidden;
+	display: grid;
+	place-items: center;
+
+	box-shadow: 0 0 0 calc(var(--vmin) / 3) var(--oc-gray-7);
+}
+
+.controller {
+	width: var(--controller-width);
+	height: var(--controller-height);
+
+	border-radius: calc(0.8 * var(--action-ability-size));
+
+	display: grid;
+	place-items: center;
+
+	background-color: var(--oc-gray-7);
+}
+
+/*   abilities fuckery   */
+.ability-selector {
+	border-radius: calc(0.1 * var(--action-ability-size));
+
+	display: grid;
+	place-content: space-evenly;
+	grid-auto-flow: column;
+}
+.ability {
+	width: var(--action-ability-size);
+	aspect-ratio: 1 / 1;
+	border-radius: calc(0.1 * var(--action-ability-size));
+
+	display: grid;
+	place-items: center;
+	overflow: hidden;
+
+	font-size: calc(var(--action-ability-size) * 0.75);
+	color: var(--oc-gray-5);
+
+	background-color: var(--oc-gray-8);
+	border: calc(0.05 * var(--action-ability-size)) solid var(--oc-gray-7);
+
+	z-index: 0;
+}
+.ability > img {
+	width: 80%;
+	height: 80%;
+}
+
+.controller.player-green .ability {
+	rotate: 180deg;
+	color: var(--oc-green-6);
+}
+.controller.player-blue .ability {
+	rotate: 0deg;
+	color: var(--oc-blue-6);
+}
+
+/*   actions fuckery   */
+.action-selector {
+	border-radius: calc(0.1 * var(--action-ability-size));
+
+	display: grid;
+	place-content: space-evenly;
+	grid-auto-flow: column;
+}
+.action {
+	width: var(--action-ability-size);
+	aspect-ratio: 1 / 1;
+	border-radius: calc(0.1 * var(--action-ability-size));
+
+	display: grid;
+	place-items: center;
+	overflow: hidden;
+
+	background-color: var(--oc-gray-8);
+	border: calc(0.05 * var(--action-ability-size)) solid var(--oc-gray-7);
+
+	z-index: 0;
+}
+
+.action:is(.confirm, .move, .attack) {
+	display: grid;
+	place-items: center;
+}
+.controller.player-green .action:is(.confirm, .move, .attack) {
+	color: var(--oc-green-6);
+}
+.controller.player-blue .action:is(.confirm, .move, .attack) {
+	color: var(--oc-blue-6);
+}
+
+.controller.player-green .action {
+	rotate: 180deg;
+}
+.controller.player-blue .action {
+	rotate: 0deg;
+}
+
+:is(.cell, .ability, .action) {
+	filter: brightness(100%);
+	scale: 1;
+	z-index: 0;
+
+	transition: 100ms;
+}
+:is(.cell, .ability, .action):is(:hover, [data-selected='true']) {
+	filter: brightness(120%);
+	scale: 1.2;
+	z-index: 10;
+
+	transition: 100ms;
+}
+
+/*   modal fuckery   */
+.modal {
+	width: calc(100 * var(--vmin));
+	height: calc(100 * var(--vmax));
+
+	display: none;
+	position: fixed;
+	left: 0;
+	top: 0;
+
+	overflow: auto;
+	z-index: 1;
+
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+	position: relative;
+	border-radius: var(--vmin);
+
+	display: grid;
+	place-items: center;
+	overflow: scroll;
+
+	margin: calc(10 * var(--vmin));
+	padding: calc(10 * var(--vmin));
+	background-color: var(--oc-gray-2);
+
+	z-index: 1;
+}
+
+.open-modal {
+	position: fixed;
+	display: grid;
+	place-items: center;
+
+	width: calc(10 * var(--vmin));
+	height: calc(10 * var(--vmin));
+
+	left: calc(1 * var(--vmin));
+	top: calc(1 * var(--vmin));
+
+	border-radius: calc(2.5 * var(--vmin));
+	z-index: 1;
+	cursor: pointer;
+
+	color: var(--oc-gray-4);
+	background: var(--oc-gray-8);
+}
+
+.close-modal {
+	position: fixed;
+	top: calc(10 * var(--vmin));
+	left: calc(12 * var(--vmin));
+
+	font-size: calc(2 * var(--vmin));
+	color: var(--oc-gray-8);
+	cursor: pointer;
+}
+
+.modal-content > p {
+	font-size: calc(5 * var(--vmin));
+}
+
+/*   landscape mode fuckery   */
+@media (orientation: landscape) {
+	.container {
+		transform: rotate(270deg);
+		transform-origin: bottom right;
+
+		position: absolute;
+		top: calc(-100 * var(--vmax));
+		left: calc(43.7 * var(--vmax));
+	}
+
+	.modal {
+		width: calc(100 * var(--vmax));
+		height: calc(100 * var(--vmin));
+	}
+
+	.open-modal {
+		rotate: 90deg;
+	}
+}
+
+/*   elemental svg fuckery   */
+svg {
+	overflow: hidden;
+	position: absolute;
+}
+
+.cell[data-occupied='false'] svg {
+	display: none;
+}
+
+.elemental {
+	width: var(--cell-size);
+	height: var(--cell-size);
+}
+.elemental-shape {
+	stroke: var(--oc-gray-8);
+	stroke-width: 0.05;
+}
+
+/*   elemental gradient color fuckery   */
+.cell[data-element='air'] .elemental-shape {
+	fill: url('#gradient-air');
+}
+.cell[data-element='fire'] .elemental-shape {
+	fill: url('#gradient-fire');
+}
+.cell[data-element='rock'] .elemental-shape {
+	fill: url('#gradient-rock');
+}
+.cell[data-element='water'] .elemental-shape {
+	fill: url('#gradient-water');
+}
+.cell[data-element='nature'] .elemental-shape {
+	fill: url('#gradient-nature');
+}
+.cell[data-element='energy'] .elemental-shape {
+	fill: url('#gradient-energy');
+}
+
+/*   elemental shape fuckery   */
+.cell[data-level='1'] .elemental-shape {
+	d: path(
+		'M 0.57,0.23 Q 0.5,0.1 0.43,0.23 L 0.14,0.73 Q 0.07,0.85 0.21,0.85 L 0.79,0.85 Q 0.94,0.85 0.87,0.73 L 0.57,0.23 Z'
+	);
+
+	scale: 0.7;
+	translate: 15% 10%;
+}
+.cell[data-level='2'] .elemental-shape {
+	d: path(
+		'M 0.59,0.09 Q 0.5,0 0.42,0.09 L 0.09,0.42 Q 0,0.5 0.09,0.59 L 0.42,0.92 Q 0.5,1 0.59,0.92 L 0.92,0.59 Q 1,0.5 0.92,0.42 L 0.59,0.09 Z'
+	);
+
+	scale: 0.8;
+	translate: 10% 10%;
+}
+.cell[data-level='3'] .elemental-shape {
+	d: path(
+		'M 0.58,0.06 Q 0.5,0 0.42,0.06 L 0.1,0.29 Q 0.03,0.35 0.05,0.44 L 0.18,0.81 Q 0.21,0.91 0.31,0.91 L 0.7,0.91 Q 0.8,0.91 0.83,0.81 L 0.95,0.44 Q 0.98,0.35 0.9,0.29 L 0.58,0.06 Z'
+	);
+
+	scale: 0.9;
+	translate: 5% 7.5%;
+}
+
+/*   elemental health fuckery   */
+.elemental-health-boundary {
+	d: path('M 0,0 A 0.5 0.5 0 1 1 0.01,0 Z');
+	fill: none;
+	stroke: var(--cc-elemental-health-boundary);
+	stroke-width: 0.075;
+
+	translate: 50% 99%;
+	scale: 0.25;
+}
+.elemental-health-background {
+	d: path('M 0,0 A 0.5 0.5 0 1 1 0.01,0 Z');
+	fill: var(--cc-elemental-health-boundary-filler);
+	fill-opacity: var(--cc-elemental-health-boundary-filler-opacity);
+	stroke: none;
+
+	translate: 50% 99%;
+	scale: 0.25;
+}
+.elemental-health-life {
+	fill: var(--cc-elemental-health-life);
+	stroke: none;
+
+	translate: 50% 98%;
+	scale: 0.23;
+}
+
+.cell[data-level='1'][data-health='1'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='2'][data-health='1'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.5 1 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='2'][data-health='2'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='1'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='2'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='3'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.5 1 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='4'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.75 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='5'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.25 L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+.cell[data-level='3'][data-health='6'] .elemental-health-life {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	translate: 38.5% 75%;
+}
+
+/*   hit fuckery   */
+.elemental-health-hit {
+	fill: var(--cc-elemental-health-hit);
+	stroke: none;
+
+	translate: 50% 98%;
+	scale: 0.23;
+}
+
+.cell[data-level='1'][data-health='1'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 38.5% 36.5%;
+}
+.cell[data-level='2'][data-health='1'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.5 1 L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 38.5% 36.5%;
+}
+.cell[data-level='2'][data-health='2'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.5 1 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.24;
+	translate: 62% 36.5%;
+	rotate: 180deg;
+}
+.cell[data-level='3'][data-health='1'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 37.5% 37.5%;
+}
+.cell[data-level='3'][data-health='2'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 44.5% 47.5%;
+	rotate: -60deg;
+}
+.cell[data-level='3'][data-health='3'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 56.5% 46.5%;
+	rotate: -120deg;
+}
+.cell[data-level='3'][data-health='4'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 62.5% 36%;
+	rotate: -180deg;
+}
+.cell[data-level='3'][data-health='5'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 55.5% 25.5%;
+	rotate: -240deg;
+}
+.cell[data-level='3'][data-health='6'][data-hit='1'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.25 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 43% 26%;
+	rotate: -300deg;
+}
+
+.cell[data-level='2'][data-health='2'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 1 0.499 0 Z L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 38.5% 36.5%;
+}
+.cell[data-level='3'][data-health='2'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 37.5% 36.5%;
+}
+.cell[data-level='3'][data-health='3'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 44% 47.5%;
+	rotate: -60deg;
+}
+.cell[data-level='3'][data-health='4'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 56% 46.5%;
+	rotate: -120deg;
+}
+.cell[data-level='3'][data-health='5'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 62.5% 36.5%;
+	rotate: -180deg;
+}
+.cell[data-level='3'][data-health='6'][data-hit='2'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 0 0 0.067 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	scale: 0.25;
+	translate: 55.5% 25%;
+	rotate: -240deg;
+}
+
+.cell[data-level='3'][data-health='4'][data-hit='4'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 38.5% 36.5%;
+}
+.cell[data-level='3'][data-health='5'][data-hit='4'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 44.5% 46.5%;
+	rotate: -60deg;
+}
+.cell[data-level='3'][data-health='6'][data-hit='4'] .elemental-health-hit {
+	d: path('M 0.5 0.5 V 1 M 0.5 0 A 0.5 0.5 0 1 0 0.933 0.75 L 0.5,0.5 Z');
+	transform-origin: center left;
+	translate: 56% 46.5%;
+	rotate: -120deg;
+}

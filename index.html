@@ -5,42 +5,39 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Elementals Battle</title>
-		<link rel="stylesheet" href="OpenColors.css" />
-		<link rel="stylesheet" href="style.css" />
-		<script defer src="objects.js"></script>
-		<script defer src="functions.js"></script>
-		<script defer src="scripts.js"></script>
+
+		<link rel="stylesheet" href="styles/OpenColors.css" />
+		<link rel="stylesheet" href="styles/style.css" />
+
+		<link href="FontAwesome-6-PRO/pro/css/fontawesome.css" rel="stylesheet" />
+		<link href="FontAwesome-6-PRO/pro/css/all.css" rel="stylesheet" />
+
+		<script defer src="scripts/objects.js"></script>
+		<script defer src="scripts/functions.js"></script>
+		<script defer src="scripts/scripts.js"></script>
 	</head>
 	<body>
 		<div class="modal-container">
 			<div class="open-modal">
-				<svg class="open-modal-mark" viewBox="0 0 24 24">
-					<path />
-				</svg>
+				<i class="fa-solid fa-bars fa-5x open-modal-mark"></i>
 			</div>
 
 			<div class="modal">
 				<div class="modal-content">
 					<div class="close-modal">
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							xmlns="http://www.w3.org/2000/svg">
-							<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-							<g
-								id="SVGRepo_tracerCarrier"
-								stroke-linecap="round"
-								stroke-linejoin="round"></g>
-							<g id="SVGRepo_iconCarrier">
-								<path
-									fill-rule="evenodd"
-									clip-rule="evenodd"
-									d="M16.9498 8.46447C17.3404 8.07394 17.3404 7.44078 16.9498 7.05025C16.5593 6.65973 15.9261 6.65973 15.5356 7.05025L12.0001 10.5858L8.46455 7.05025C8.07402 6.65973 7.44086 6.65973 7.05033 7.05025C6.65981 7.44078 6.65981 8.07394 7.05033 8.46447L10.5859 12L7.05033 15.5355C6.65981 15.9261 6.65981 16.5592 7.05033 16.9497C7.44086 17.3403 8.07402 17.3403 8.46455 16.9497L12.0001 13.4142L15.5356 16.9497C15.9261 17.3403 16.5593 17.3403 16.9498 16.9497C17.3404 16.5592 17.3404 15.9261 16.9498 15.5355L13.4143 12L16.9498 8.46447Z"
-									fill="#000000"></path>
-							</g>
-						</svg>
+						<i class="fa-solid fa-xmark fa-5x close-modal-mark"></i>
 					</div>
-					<p>Some text in the Modal..</p>
+					<p>
+						Lorem ipsum, dolor sit amet consectetur adipisicing elit. Id at eum dicta blanditiis harum
+						beatae? Voluptas cupiditate blanditiis eius officia commodi saepe incidunt quae maxime qui culpa
+						est ipsa deserunt in pariatur perspiciatis et, nulla quaerat possimus nostrum natus! Atque
+						quaerat, quidem similique ullam tempora consectetur dolore iusto laboriosam itaque voluptates
+						minima exercitationem quam culpa, praesentium unde nulla. Necessitatibus fugit repudiandae
+						labore quas voluptatem eum vitae quis aperiam at consectetur, expedita, impedit adipisci
+						dignissimos cupiditate error? Eius dolore natus nobis vitae tenetur asperiores saepe,
+						accusantium praesentium repellat error libero aliquid excepturi dicta at earum placeat
+						reiciendis neque non itaque quod.
+					</p>
 				</div>
 			</div>
 		</div>
@@ -48,28 +45,16 @@
 		<div class="container">
 			<div class="controller player-green">
 				<div class="action-selector">
-					<div class="action confirm">
-						<svg viewBox="0 0 32 32">
-							<path />
-						</svg>
-					</div>
-					<div class="action move">
-						<svg viewBox="0 0 16 16">
-							<path />
-						</svg>
-					</div>
-					<div class="action attack">
-						<svg viewBox="0 0 256 256">
-							<path />
-						</svg>
-					</div>
+					<i class="fa-solid fa-swords fa-5x action attack"></i>
+					<i class="fa-solid fa-arrows-up-down-left-right fa-6x action move"></i>
+					<i class="fa-solid fa-check fa-6x action confirm"></i>
 				</div>
 				<div class="ability-selector">
-					<div class="ability" id="ag-5">5</div>
-					<div class="ability" id="ag-4">4</div>
-					<div class="ability" id="ag-3">3</div>
-					<div class="ability" id="ag-2">2</div>
-					<div class="ability" id="ag-1">1</div>
+					<div class="ability"><img src="pics/meteor.png" alt="meteor shower" /></div>
+					<div class="ability"><img src="pics/boot.png" alt="magic boot" /></div>
+					<div class="ability"><img src="pics/pyramid.png" alt="pyramid" /></div>
+					<div class="ability"><img src="pics/heal.png" alt="healing" /></div>
+					<div class="ability"><img src="pics/thorn.png" alt="thorn vine" /></div>
 				</div>
 			</div>
 
@@ -77,57 +62,20 @@
 
 			<div class="controller player-blue">
 				<div class="ability-selector">
-					<div class="ability" id="ab-1">1</div>
-					<div class="ability" id="ab-2">2</div>
-					<div class="ability" id="ab-3">3</div>
-					<div class="ability" id="ab-4">4</div>
-					<div class="ability" id="ab-5">5</div>
+					<div class="ability"><img src="pics/thorn.png" alt="thorn vine" /></div>
+					<div class="ability"><img src="pics/heal.png" alt="healing" /></div>
+					<div class="ability"><img src="pics/pyramid.png" alt="pyramid" /></div>
+					<div class="ability"><img src="pics/boot.png" alt="magic boot" /></div>
+					<div class="ability"><img src="pics/meteor.png" alt="meteor shower" /></div>
 				</div>
 				<div class="action-selector">
-					<div class="action attack">
-						<svg viewBox="0 0 256 256">
-							<path />
-						</svg>
-					</div>
-					<div class="action move">
-						<svg viewBox="0 0 16 16">
-							<path />
-						</svg>
-					</div>
-					<div class="action confirm">
-						<svg viewBox="0 0 32 32">
-							<path />
-						</svg>
-					</div>
+					<i class="fa-solid fa-swords fa-5x action attack"></i>
+					<i class="fa-solid fa-arrows-up-down-left-right fa-6x action move"></i>
+					<i class="fa-solid fa-check fa-6x action confirm"></i>
 				</div>
 			</div>
 		</div>
 
-		<svg width="0" height="0" class="gradients">
-			<radialgradient id="gradient-air">
-				<stop offset="10%" />
-				<stop offset="90%" />
-			</radialgradient>
-			<radialgradient id="gradient-fire">
-				<stop offset="10%" />
-				<stop offset="90%" />
-			</radialgradient>
-			<radialgradient id="gradient-rock">
-				<stop offset="10%" />
-				<stop offset="90%" />
-			</radialgradient>
-			<radialgradient id="gradient-water">
-				<stop offset="10%" />
-				<stop offset="90%" />
-			</radialgradient>
-			<radialgradient id="gradient-nature">
-				<stop offset="10%" />
-				<stop offset="90%" />
-			</radialgradient>
-			<radialgradient id="gradient-energy">
-				<stop offset="10%" />
-				<stop offset="90%" />
-			</radialgradient>
-		</svg>
+		<svg width="0" height="0" class="gradients"></svg>
 	</body>
 </html>
