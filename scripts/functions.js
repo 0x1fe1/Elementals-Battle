@@ -1,13 +1,8 @@
-function insert_elemental({ cell, element, level = 1, health = 1, hit = 0 }) {
-	cell.dataset['occupied'] = true
-	cell.dataset['element'] = element
-	cell.dataset['level'] = level
-	cell.dataset['health'] = health
-	cell.dataset['hit'] = hit
-}
-
-function remove_elemental(cell) {
-	cell.dataset['occupied'] = 'false'
+//#region //* Setup
+function setup() {
+	generate_cells(document.querySelector('.board'))
+	chessboard_cells(Array.from(document.querySelectorAll('.cell')))
+	generate_gradients(document.querySelector('.gradients'))
 }
 
 function generate_cells(board) {
@@ -23,8 +18,9 @@ function generate_cells(board) {
                 </svg>
             </div>`
 	}
+}
 
-	const cells = Array.from(document.querySelectorAll('.cell'))
+function chessboard_cells(cells) {
 	cells.forEach((cell, i) => {
 		const [x, y] = [(i % 12) % 2, ((i - (i % 12)) / 12) % 2]
 
@@ -37,18 +33,37 @@ function generate_cells(board) {
 			if (x !== y) cell.style.backgroundColor = 'var(--cc-dark-blue)'
 		}
 	})
-
-	let gradients = ''
-	for (let i = 0; i < 6; i++) {
-		gradients += `
-        <radialgradient id="gradient-${ELEMENTS[i]}">
-            <stop offset="10%" stop-color="var(--cc-gradient-${ELEMENTS[i]}-1)" />
-            <stop offset="90%" stop-color="var(--cc-gradient-${ELEMENTS[i]}-2)" />
-        </radialgradient>`
-	}
-	document.querySelector('.gradients').innerHTML += gradients
 }
 
+function generate_gradients(gradient_svg) {
+	let gradients = '',
+		elements = Object.values(ELEMENTS)
+	for (let i = 0; i < 6; i++) {
+		gradients += `
+        <radialgradient id="gradient-${elements[i]}">
+            <stop offset="10%" stop-color="var(--cc-gradient-${elements[i]}-1)" />
+            <stop offset="90%" stop-color="var(--cc-gradient-${elements[i]}-2)" />
+        </radialgradient>`
+	}
+	gradient_svg.innerHTML += gradients
+}
+//#endregion
+
+//#region //* General
+function insert_elemental({ cell, element, level = 1, health = 1, hit = 0 }) {
+	cell.dataset['occupied'] = true
+	cell.dataset['element'] = element
+	cell.dataset['level'] = level
+	cell.dataset['health'] = health
+	cell.dataset['hit'] = hit
+}
+
+function remove_elemental(cell) {
+	cell.dataset['occupied'] = 'false'
+}
+//#endregion
+
+//#region //* Helpers
 function random() {
 	const args = Array.from(arguments)
 	if (args.length === 0) return Math.random()
@@ -116,3 +131,4 @@ function random() {
 
 	return console.error('random function error: ', args)
 }
+//#endregion

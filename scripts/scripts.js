@@ -17,8 +17,7 @@ window.onclick = function (e) {
 }
 
 // console.clear()
-//* INITIALIZATION
-generate_cells(document.querySelector('.board'))
+setup()
 
 const cells = Array.from(document.querySelectorAll('.cell'))
 cells.forEach((cell, i) => {
