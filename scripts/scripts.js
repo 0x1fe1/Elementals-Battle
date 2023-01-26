@@ -1,21 +1,11 @@
-const modal = document.querySelector('.modal')
-const openModal = document.querySelector('.open-modal')
-const closeModal = document.querySelector('.close-modal')
-
-openModal.addEventListener('click', () => {
-	modal.style.display = 'grid'
-})
-
-closeModal.onclick = function () {
-	modal.style.display = 'none'
-}
-
-window.onclick = function (e) {
-	if (e.target === modal) {
-		modal.style.display = 'none'
-	}
-}
-
+screen.orientation
+	.lock('portrait')
+	.then(() => {
+		console.log(`Locked portrait`)
+	})
+	.catch((error) => {
+		console.log(error)
+	})
 // console.clear()
 setup()
 

@@ -5,9 +5,12 @@
 	margin: 0;
 	padding: 0;
 	font-family: monospace;
+	-webkit-tap-highlight-color: transparent !important;
 }
 
 :root {
+	--vh: 1dvh;
+	--vw: 1dvw;
 	--vmin: 1dvmin;
 	--vmax: 1dvmax;
 
@@ -20,11 +23,18 @@
 	--action-ability-size: calc(12 * var(--vmin));
 	--controller-width: calc(5 * var(--action-ability-size));
 	--controller-height: calc(2 * var(--action-ability-size));
+
+	--modal-width: calc(100 * var(--vmin) - 10 * var(--vmin));
+	--modal-height: calc(100 * var(--vmax) - 10 * var(--vmin));
 }
 
 body {
 	/* overscroll-behavior: contain; */
 	background-color: var(--oc-gray-9);
+}
+
+i {
+	font-size: calc(8 * var(--vmin));
 }
 
 .container {
@@ -179,29 +189,16 @@ body {
 	height: calc(100 * var(--vmax));
 
 	display: none;
+	place-items: center;
+
 	position: fixed;
-	left: 0;
-	top: 0;
+	/* left: 0;
+	top: 0; */
 
 	overflow: auto;
 	z-index: 1;
 
 	background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-	position: relative;
-	border-radius: var(--vmin);
-
-	display: grid;
-	place-items: center;
-	overflow: scroll;
-
-	margin: calc(10 * var(--vmin));
-	padding: calc(10 * var(--vmin));
-	background-color: var(--oc-gray-2);
-
-	z-index: 1;
 }
 
 .open-modal {
@@ -225,20 +222,79 @@ body {
 
 .close-modal {
 	position: fixed;
-	top: calc(10 * var(--vmin));
-	left: calc(12 * var(--vmin));
+	top: calc(6 * var(--vmin));
+	right: calc(8 * var(--vmin));
 
 	font-size: calc(2 * var(--vmin));
-	color: var(--oc-gray-8);
+	color: var(--oc-gray-4);
 	cursor: pointer;
+
+	z-index: 20;
 }
 
-.modal-content > p {
-	font-size: calc(5 * var(--vmin));
+.modal-content {
+	width: var(--modal-width);
+	height: var(--modal-height);
+
+	display: grid;
+	grid-template-areas:
+		'tab-selector'
+		'tab-content';
+	grid-template-rows: calc(8 * var(--vmax)) 1fr;
+
+	border-radius: var(--vmin);
+	background: var(--oc-gray-8);
+
+	z-index: 10;
 }
 
-i {
+.tab-buttons,
+.tab-contents {
+	margin: calc(2 * var(--vmin));
+}
+
+.tab-buttons {
+	display: grid;
+	place-items: stretch;
+	grid-auto-flow: column;
+	grid-area: tab-selector;
+}
+.tab-buttons i {
+	border-radius: var(--vmin);
+
+	display: grid;
+	place-items: center;
+
 	font-size: calc(8 * var(--vmin));
+	color: var(--oc-gray-6);
+	cursor: pointer;
+	transition: 100ms;
+}
+.tab-buttons [data-active='true'] {
+	font-size: calc(10 * var(--vmin));
+	color: var(--oc-gray-1);
+	box-shadow: 0 0 var(--vmin) var(--vmin) var(--oc-gray-9);
+}
+
+.tab-contents {
+	grid-area: tab-content;
+
+	overflow: scroll;
+	box-shadow: 0 0 var(--vmin) var(--vmin) var(--oc-gray-9);
+	border-radius: var(--vmin);
+}
+.tab-contents > .tab-content {
+	display: none;
+	place-items: center;
+	color: var(--oc-gray-2);
+}
+.tab-contents > [data-active='true'] {
+	display: grid;
+}
+
+p,
+h1 {
+	font-size: calc(5 * var(--vmin));
 }
 
 /*   landscape mode fuckery   */
@@ -255,6 +311,11 @@ i {
 	.modal {
 		width: calc(100 * var(--vmax));
 		height: calc(100 * var(--vmin));
+	}
+
+	.modal-content {
+		width: var(--modal-height);
+		height: var(--modal-width);
 	}
 }
 

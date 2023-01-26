@@ -3,6 +3,8 @@ function setup() {
 	generate_cells(document.querySelector('.board'))
 	chessboard_cells(Array.from(document.querySelectorAll('.cell')))
 	generate_gradients(document.querySelector('.gradients'))
+	set_modal()
+	// document.querySelector('.open-modal').click()
 }
 
 function generate_cells(board) {
@@ -46,6 +48,33 @@ function generate_gradients(gradient_svg) {
         </radialgradient>`
 	}
 	gradient_svg.innerHTML += gradients
+}
+
+function set_modal() {
+	const modal = document.querySelector('.modal')
+	const openModal = document.querySelector('.open-modal')
+	const closeModal = document.querySelector('.close-modal')
+
+	openModal.addEventListener('click', () => {
+		modal.style.display = 'grid'
+	})
+	closeModal.addEventListener('click', () => {
+		modal.style.display = 'none'
+	})
+	window.addEventListener('click', (e) => {
+		if (e.target === modal) modal.style.display = 'none'
+	})
+
+	const buttons = Array.from(document.querySelectorAll('.tab-buttons > *'))
+	const contents = Array.from(document.querySelectorAll('.tab-contents > *'))
+	buttons.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			buttons.forEach((button) => (button.dataset.active = false))
+			contents.forEach((content) => (content.dataset.active = false))
+			buttons.find((button) => button.dataset.name === btn.dataset.name).dataset.active = true
+			contents.find((content) => content.dataset.name === btn.dataset.name).dataset.active = true
+		})
+	})
 }
 //#endregion
 
