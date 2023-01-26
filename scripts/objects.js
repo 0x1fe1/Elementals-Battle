@@ -26,25 +26,42 @@ const ABILITY_DAMAGES = {
 }
 
 /* additional rules: 
-111 -> 2 ~ +1 point
-222 -> 3 ~ +2 points 
+111 -> 020 ~ +1 point
+222 -> 030 ~ +2 points 
 
 when a cell becomes inactive -> move the elemental up (does not trigger merge)
 */
 
 class Elemental {
-	static random(cell) {
-		const element = random(Object.values(ELEMENTS))
-		const level = random(LEVELS)
-		return new Elemental(cell, element, level)
+	static random(default_element = null) {
+		const element = default_element ?? random(Object.values(ELEMENTS))
+		const level = random() < 0.67 ? LEVELS[0] : random() < 0.67 ? LEVELS[1] : LEVELS[2]
+		return new Elemental(element, level)
 	}
 
-	constructor(cell, element, level) {
-		this.cell = cell
+	constructor(element, level) {
 		this.element = element
 		this.level = level
 		this.health = MAX_HEALTH[level - 1]
-		this.damage = DAMAGE[level - 1]
-		this.reach = REACH[level - 1]
+		this.hit = 0
+
+		return this
+	}
+
+	bind(cell) {
+		this.cell = cell
+		return this
+	}
+
+	get data() {
+		return {
+			cell: this.cell,
+			element: this.element,
+			level: this.level,
+			health: this.health,
+			hit: this.hit,
+			damage: this.damage,
+			reach: this.reach,
+		}
 	}
 }

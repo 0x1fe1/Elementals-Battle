@@ -19,15 +19,11 @@
 	</head>
 	<body>
 		<div class="modal-container">
-			<div class="open-modal">
-				<i class="fa-solid fa-bars open-modal-mark"></i>
-			</div>
+			<i class="fa-solid fa-bars open-modal"></i>
 
 			<div class="modal">
 				<div class="modal-content">
-					<div class="close-modal">
-						<i class="fa-solid fa-xmark close-modal-mark"></i>
-					</div>
+					<i class="fa-solid fa-xmark close-modal"></i>
 
 					<div class="tab-buttons">
 						<i class="fa-solid fa-gear tab-button" data-name="settings" data-active="true"></i>
@@ -79,11 +75,11 @@
 		</div>
 
 		<div class="container">
-			<div class="controller player-green">
+			<div class="controller" data-player="green" data-active="true">
 				<div class="action-selector">
-					<i class="fa-solid fa-swords action attack"></i>
-					<i class="fa-solid fa-arrows-up-down-left-right action move"></i>
-					<i class="fa-solid fa-check action confirm"></i>
+					<i class="fa-solid fa-swords action" data-type="attack"></i>
+					<i class="fa-solid fa-arrows-up-down-left-right action" data-type="move"></i>
+					<i class="fa-solid fa-check action" data-type="confirm"></i>
 				</div>
 				<div class="ability-selector">
 					<div class="ability"><img src="images/meteor.png" alt="meteor shower" /></div>
@@ -96,7 +92,7 @@
 
 			<div class="board"></div>
 
-			<div class="controller player-blue">
+			<div class="controller" data-player="blue" data-active="false">
 				<div class="ability-selector">
 					<div class="ability"><img src="images/thorn.png" alt="thorn vine" /></div>
 					<div class="ability"><img src="images/heal.png" alt="healing" /></div>
@@ -105,9 +101,9 @@
 					<div class="ability"><img src="images/meteor.png" alt="meteor shower" /></div>
 				</div>
 				<div class="action-selector">
-					<i class="fa-solid fa-swords action attack"></i>
-					<i class="fa-solid fa-arrows-up-down-left-right action move"></i>
-					<i class="fa-solid fa-check action confirm"></i>
+					<i class="fa-solid fa-swords action" data-type="attack"></i>
+					<i class="fa-solid fa-arrows-up-down-left-right action" data-type="move"></i>
+					<i class="fa-solid fa-check action" data-type="confirm"></i>
 				</div>
 			</div>
 		</div>

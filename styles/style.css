@@ -9,8 +9,6 @@
 }
 
 :root {
-	--vh: 1dvh;
-	--vw: 1dvw;
 	--vmin: 1dvmin;
 	--vmax: 1dvmax;
 
@@ -51,7 +49,6 @@ i {
 }
 
 .board {
-	width: var(--board-size);
 	aspect-ratio: 1 / 1;
 	border-radius: calc(0.25 * var(--vmin));
 
@@ -67,13 +64,14 @@ i {
 .cell {
 	width: var(--cell-size);
 	aspect-ratio: 1 / 1;
-	border-radius: calc(var(--vmin) / 3);
+	border-radius: calc(var(--vmin) * 0.5);
 
 	overflow: hidden;
 	display: grid;
 	place-items: center;
 
-	box-shadow: 0 0 0 calc(var(--vmin) / 3) var(--oc-gray-7);
+	border: calc(var(--vmin) * 0.2) solid var(--oc-gray-7);
+	/* box-shadow: 0 0 0 calc(var(--vmin) / 3) var(--oc-gray-7); */
 }
 
 .controller {
@@ -118,11 +116,11 @@ i {
 	height: 80%;
 }
 
-.controller.player-green .ability {
+.controller[data-player='green'] .ability {
 	rotate: 180deg;
 	color: var(--oc-green-6);
 }
-.controller.player-blue .ability {
+.controller[data-player='blue'] .ability {
 	rotate: 0deg;
 	color: var(--oc-blue-6);
 }
@@ -150,21 +148,21 @@ i {
 	z-index: 0;
 }
 
-.action:is(.confirm, .move, .attack) {
+.action:is([data-type='attack'], [data-type='move'], [data-type='confirm']) {
 	display: grid;
 	place-items: center;
 }
-.controller.player-green .action:is(.confirm, .move, .attack) {
+.controller[data-player='green'] .action:is([data-type='attack'], [data-type='move'], [data-type='confirm']) {
 	color: var(--oc-green-6);
 }
-.controller.player-blue .action:is(.confirm, .move, .attack) {
+.controller[data-player='blue'] .action:is([data-type='attack'], [data-type='move'], [data-type='confirm']) {
 	color: var(--oc-blue-6);
 }
 
-.controller.player-green .action {
+.controller[data-player='green'] .action {
 	rotate: 180deg;
 }
-.controller.player-blue .action {
+.controller[data-player='blue'] .action {
 	rotate: 0deg;
 }
 
@@ -225,7 +223,7 @@ i {
 	top: calc(6 * var(--vmin));
 	right: calc(8 * var(--vmin));
 
-	font-size: calc(2 * var(--vmin));
+	font-size: calc(8 * var(--vmin));
 	color: var(--oc-gray-4);
 	cursor: pointer;
 
@@ -248,7 +246,7 @@ i {
 	z-index: 10;
 }
 
-.tab-buttons,
+.tab-buttons > *,
 .tab-contents {
 	margin: calc(2 * var(--vmin));
 }
@@ -286,15 +284,18 @@ i {
 .tab-contents > .tab-content {
 	display: none;
 	place-items: center;
+	padding: calc(2 * var(--vmin));
 	color: var(--oc-gray-2);
 }
 .tab-contents > [data-active='true'] {
 	display: grid;
 }
 
-p,
-h1 {
+p {
 	font-size: calc(5 * var(--vmin));
+}
+h1 {
+	font-size: calc(7 * var(--vmin));
 }
 
 /*   landscape mode fuckery   */

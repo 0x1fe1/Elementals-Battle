@@ -10,13 +10,6 @@
 	--cc-light-green: var(--oc-green-4);
 	--cc-dark-green: var(--oc-green-7);
 
-	--cc-element-air: var(--oc-cyan-2);
-	--cc-element-fire: var(--oc-orange-7);
-	--cc-element-rock: var(--oc-gray-6);
-	--cc-element-water: var(--oc-blue-5);
-	--cc-element-nature: var(--oc-teal-5);
-	--cc-element-energy: var(--oc-grape-5);
-
 	--cc-gradient-air-1: var(--oc-cyan-4);
 	--cc-gradient-air-2: var(--oc-cyan-2);
 	--cc-gradient-fire-1: var(--oc-orange-6);

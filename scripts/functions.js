@@ -1,16 +1,21 @@
 //#region //* Setup
 function setup() {
-	generate_cells(document.querySelector('.board'))
-	chessboard_cells(Array.from(document.querySelectorAll('.cell')))
+	generate_default_cells(document.querySelector('.board'))
 	generate_gradients(document.querySelector('.gradients'))
 	set_modal()
 	// document.querySelector('.open-modal').click()
 }
 
-function generate_cells(board) {
-	for (let i = 0; i < 144; i++) {
-		board.innerHTML += `
-            <div class="cell" data-occupied="false">
+function generate_default_cells(board) {
+	for (let i = 0; i < 12; i++) {
+		for (let j = 0; j < 12; j++) {
+			const ld = i % 2 === j % 2 ? 'light' : 'dark'
+			const gb = i < 6 ? 'green' : 'blue'
+			board.innerHTML += `
+            <div class="cell" data-occupied="false" 
+                data-player="${i < 6 ? 'green' : 'blue'}"
+                data-pos-x="${j}" data-pos-y="${i}"
+                style="background: var(--cc-${ld}-${gb})${i < 6 ? '; rotate: 180deg' : ''}">
                 <svg class="elemental" viewbox="0 0 1 1">
                     <path class="elemental-shape"/>
                     <path class="elemental-health-background"/>
@@ -19,28 +24,13 @@ function generate_cells(board) {
                     <path class="elemental-health-boundary"/>
                 </svg>
             </div>`
+		}
 	}
 }
 
-function chessboard_cells(cells) {
-	cells.forEach((cell, i) => {
-		const [x, y] = [(i % 12) % 2, ((i - (i % 12)) / 12) % 2]
-
-		if (i < 72) {
-			if (x === y) cell.style.backgroundColor = 'var(--cc-light-green)'
-			if (x !== y) cell.style.backgroundColor = 'var(--cc-dark-green)'
-			cell.style.transform += 'rotate(180deg)'
-		} else {
-			if (x === y) cell.style.backgroundColor = 'var(--cc-light-blue)'
-			if (x !== y) cell.style.backgroundColor = 'var(--cc-dark-blue)'
-		}
-	})
-}
-
 function generate_gradients(gradient_svg) {
-	let gradients = '',
-		elements = Object.values(ELEMENTS)
-	for (let i = 0; i < 6; i++) {
+	const elements = Object.values(ELEMENTS)
+	for (var i = 0, gradients = ''; i < 6; i++) {
 		gradients += `
         <radialgradient id="gradient-${elements[i]}">
             <stop offset="10%" stop-color="var(--cc-gradient-${elements[i]}-1)" />
@@ -80,15 +70,41 @@ function set_modal() {
 
 //#region //* General
 function insert_elemental({ cell, element, level = 1, health = 1, hit = 0 }) {
-	cell.dataset['occupied'] = true
-	cell.dataset['element'] = element
-	cell.dataset['level'] = level
-	cell.dataset['health'] = health
-	cell.dataset['hit'] = hit
+	cell.dataset.occupied = true
+	cell.dataset.element = element
+	cell.dataset.level = level
+	cell.dataset.health = health
+	cell.dataset.hit = hit
 }
 
 function remove_elemental(cell) {
 	cell.dataset['occupied'] = 'false'
+}
+
+function get_cells(type) {
+	const cells_raw = Array.from(document.querySelectorAll('.cell'))
+	const cells = new Array(12).fill().map((_, i) => new Array(12).fill().map((_, j) => cells_raw[j + i * 12]))
+	if (type === 'green') return cells.filter((_, i) => i < 6)
+	if (type === 'blue') return cells.filter((_, i) => i >= 6)
+	return cells
+}
+
+function generate_cells(cells, elements_green, elements_blue) {
+	const num = random('i', 27, 33)
+	for (let i = 0; i < num; i++) {
+		const cell = random(cells.flat().filter((cell) => cell.dataset.occupied === 'false' && cell.dataset.posY < 5))
+		const elemental = Elemental.random(random(elements_green)).bind(cell)
+		elemental.health = random('i', 1, elemental.health)
+		if (random() < 0.25) elemental.hit = random('i', 0, elemental.health + 1)
+		insert_elemental(elemental.data)
+	}
+	for (let i = 0; i < num; i++) {
+		const cell = random(cells.flat().filter((cell) => cell.dataset.occupied === 'false' && cell.dataset.posY > 6))
+		const elemental = Elemental.random(random(elements_blue)).bind(cell)
+		elemental.health = random('i', 1, elemental.health)
+		if (random() < 0.25) elemental.hit = random('i', 0, elemental.health + 1)
+		insert_elemental(elemental.data)
+	}
 }
 //#endregion
 
