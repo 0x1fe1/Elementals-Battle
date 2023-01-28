@@ -22,8 +22,8 @@
 	--controller-width: calc(5 * var(--action-ability-size));
 	--controller-height: calc(2 * var(--action-ability-size));
 
-	--modal-width: calc(100 * var(--vmin) - 10 * var(--vmin));
-	--modal-height: calc(100 * var(--vmax) - 10 * var(--vmin));
+	--modal-content-width: calc(100 * var(--vmin) - 16 * var(--vmin));
+	--modal-content-height: calc(100 * var(--vmax) - 16 * var(--vmin));
 }
 
 body {
@@ -84,6 +84,11 @@ i {
 	place-items: center;
 
 	background-color: var(--oc-gray-7);
+	transition: 100ms;
+}
+.controller[data-active='false'] {
+	filter: brightness(50%);
+	transition: 100ms;
 }
 
 /*   abilities fuckery   */
@@ -173,7 +178,7 @@ i {
 
 	transition: 100ms;
 }
-:is(.cell, .ability, .action):is(:hover, [data-selected='true']) {
+:is(.cell, .ability, .action):is(:hover, [data-active='true']) {
 	filter: brightness(120%);
 	scale: 1.2;
 	z-index: 10;
@@ -188,51 +193,44 @@ i {
 
 	display: none;
 	place-items: center;
-
 	position: fixed;
-	/* left: 0;
-	top: 0; */
 
 	overflow: auto;
-	z-index: 1;
+	z-index: 20;
 
-	background-color: rgba(0, 0, 0, 0.5);
+	background: rgba(0 0 0 / 0.67);
 }
 
-.open-modal {
+.open-modal,
+.close-modal {
 	position: fixed;
 	display: grid;
 	place-items: center;
 
 	width: calc(10 * var(--vmin));
 	height: calc(10 * var(--vmin));
-
-	left: calc(1 * var(--vmin));
 	top: calc(1 * var(--vmin));
 
 	border-radius: calc(2.5 * var(--vmin));
-	z-index: 1;
 	cursor: pointer;
 
 	color: var(--oc-gray-4);
 	background: var(--oc-gray-8);
+
+	box-shadow: 0 0 calc(0.5 * var(--vmin)) calc(0.5 * var(--vmin)) var(--oc-gray-9);
 }
-
+.open-modal {
+	left: calc(1 * var(--vmin));
+	z-index: 10;
+}
 .close-modal {
-	position: fixed;
-	top: calc(6 * var(--vmin));
-	right: calc(8 * var(--vmin));
-
-	font-size: calc(8 * var(--vmin));
-	color: var(--oc-gray-4);
-	cursor: pointer;
-
-	z-index: 20;
+	right: calc(1 * var(--vmin));
+	z-index: 40;
 }
 
 .modal-content {
-	width: var(--modal-width);
-	height: var(--modal-height);
+	width: var(--modal-content-width);
+	height: var(--modal-content-height);
 
 	display: grid;
 	grid-template-areas:
@@ -243,7 +241,7 @@ i {
 	border-radius: var(--vmin);
 	background: var(--oc-gray-8);
 
-	z-index: 10;
+	z-index: 30;
 }
 
 .tab-buttons > *,
@@ -291,6 +289,121 @@ i {
 	display: grid;
 }
 
+#element-selector {
+	width: 100%;
+}
+#element-selector * {
+	font-size: calc(6 * var(--vmin));
+}
+#element-selector > fieldset {
+	display: grid;
+	place-items: center;
+}
+
+fieldset .input-wrapper {
+	display: grid;
+	place-items: start;
+	grid-template-areas:
+		'air-input air-label fire-input fire-label'
+		'rock-input rock-label water-input water-label'
+		'nature-input nature-label energy-input energy-label';
+}
+fieldset[data-player='green'] {
+	color: var(--oc-green-5);
+	border: calc(0.5 * var(--vmin)) solid var(--oc-green-5);
+}
+fieldset[data-player='blue'] {
+	color: var(--oc-blue-5);
+	border: calc(0.5 * var(--vmin)) solid var(--oc-blue-5);
+}
+
+legend {
+	margin: 0 auto;
+}
+label {
+	display: grid;
+	margin: calc(6 * var(--vmin));
+	margin-left: calc(1 * var(--vmin));
+}
+input {
+	display: grid;
+	place-self: center;
+	margin: calc(2 * var(--vmin));
+	appearance: none;
+}
+
+input::before {
+	content: '';
+	display: grid;
+
+	width: calc(4 * var(--vmin));
+	height: calc(4 * var(--vmin));
+
+	border-radius: var(--vmin);
+	background: var(--oc-gray-9);
+}
+input[data-type='air']:checked::before {
+	grid-area: air-input;
+	background: radial-gradient(var(--cc-gradient-air-1), var(--cc-gradient-air-2));
+}
+input[data-type='fire']:checked::before {
+	grid-area: fire-input;
+	background: radial-gradient(var(--cc-gradient-fire-1), var(--cc-gradient-fire-2));
+}
+input[data-type='rock']:checked::before {
+	grid-area: rock-input;
+	background: radial-gradient(var(--cc-gradient-rock-1), var(--cc-gradient-rock-2));
+}
+input[data-type='water']:checked::before {
+	grid-area: water-input;
+	background: radial-gradient(var(--cc-gradient-water-1), var(--cc-gradient-water-2));
+}
+input[data-type='nature']:checked::before {
+	grid-area: nature-input;
+	background: radial-gradient(var(--cc-gradient-nature-1), var(--cc-gradient-nature-2));
+}
+input[data-type='energy']:checked::before {
+	grid-area: energy-input;
+	background: radial-gradient(var(--cc-gradient-energy-1), var(--cc-gradient-energy-2));
+}
+
+input[data-type='air'] + label {
+	grid-area: air-label;
+	background: -webkit-radial-gradient(var(--cc-gradient-air-1), var(--cc-gradient-air-2));
+	-webkit-text-fill-color: transparent;
+	-webkit-background-clip: text;
+}
+input[data-type='fire'] + label {
+	grid-area: fire-label;
+	background: -webkit-radial-gradient(var(--cc-gradient-fire-1), var(--cc-gradient-fire-2));
+	-webkit-text-fill-color: transparent;
+	-webkit-background-clip: text;
+}
+input[data-type='rock'] + label {
+	grid-area: rock-label;
+	background: -webkit-radial-gradient(var(--cc-gradient-rock-1), var(--cc-gradient-rock-2));
+	-webkit-text-fill-color: transparent;
+	-webkit-background-clip: text;
+}
+input[data-type='water'] + label {
+	grid-area: water-label;
+	background: -webkit-radial-gradient(var(--cc-gradient-water-1), var(--cc-gradient-water-2));
+	-webkit-text-fill-color: transparent;
+	-webkit-background-clip: text;
+}
+input[data-type='nature'] + label {
+	grid-area: nature-label;
+	background: -webkit-radial-gradient(var(--cc-gradient-nature-1), var(--cc-gradient-nature-2));
+	-webkit-text-fill-color: transparent;
+	-webkit-background-clip: text;
+}
+input[data-type='energy'] + label {
+	grid-area: energy-label;
+	background: -webkit-radial-gradient(var(--cc-gradient-energy-1), var(--cc-gradient-energy-2));
+	-webkit-text-fill-color: transparent;
+	-webkit-background-clip: text;
+}
+
 p {
 	font-size: calc(5 * var(--vmin));
 }
@@ -315,8 +428,14 @@ h1 {
 	}
 
 	.modal-content {
-		width: var(--modal-height);
-		height: var(--modal-width);
+		width: var(--modal-content-height);
+		height: var(--modal-content-width);
+	}
+
+	fieldset .input-wrapper {
+		grid-template-areas:
+			'air-input air-label fire-input fire-label rock-input rock-label'
+			'water-input water-label nature-input nature-label energy-input energy-label';
 	}
 }
 

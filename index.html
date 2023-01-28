@@ -23,7 +23,7 @@
 
 			<div class="modal">
 				<div class="modal-content">
-					<i class="fa-solid fa-xmark close-modal"></i>
+					<i class="fa-solid fa-check close-modal"></i>
 
 					<div class="tab-buttons">
 						<i class="fa-solid fa-gear tab-button" data-name="settings" data-active="true"></i>
@@ -33,18 +33,43 @@
 					<div class="tab-contents">
 						<div class="tab-content" data-name="settings" data-active="true">
 							<h1>SETTINGS</h1>
-							<p>
-								Deleniti, quibusdam? Autem tenetur, repellendus similique illum quis commodi laboriosam
-								repudiandae quia mollitia magni culpa corporis recusandae veritatis expedita distinctio
-								aperiam fugiat quas blanditiis. Officiis odio ipsam ut molestias hic eos sed placeat,
-								sequi debitis enim aspernatur, repellat ad eum soluta, accusantium minima! A minima
-								ipsum, deserunt consectetur soluta distinctio error odit laboriosam neque itaque iusto
-								id maiores, ducimus facere dolor rerum omnis est cupiditate impedit expedita? Pariatur
-								quaerat iste nesciunt earum illo adipisci nostrum quas quidem odio obcaecati eum, iusto
-								quos, nisi quasi voluptatum maxime modi quo ab repellat saepe laborum quae inventore
-								optio. Quaerat placeat et fugiat minima amet praesentium quas molestiae quod, quisquam
-								labore facilis ipsum iure, unde iusto deserunt qui maiores sed ipsam.
-							</p>
+
+							<form id="element-selector">
+								<fieldset data-player="green">
+									<legend>Player Green</legend>
+									<div class="input-wrapper">
+										<input type="checkbox" id="air-green" value="air" data-type="air" />
+										<label for="air-green">Air</label>
+										<input type="checkbox" id="fire-green" value="fire" data-type="fire" />
+										<label for="fire-green">Fire</label>
+										<input type="checkbox" id="rock-green" value="rock" data-type="rock" />
+										<label for="rock-green">Rock</label>
+										<input type="checkbox" id="water-green" value="water" data-type="water" />
+										<label for="water-green">Water</label>
+										<input type="checkbox" id="nature-green" value="nature" data-type="nature" />
+										<label for="nature-green">Nature</label>
+										<input type="checkbox" id="energy-green" value="energy" data-type="energy" />
+										<label for="energy-green">Energy</label>
+									</div>
+								</fieldset>
+								<fieldset data-player="blue">
+									<legend>Player Blue</legend>
+									<div class="input-wrapper">
+										<input type="checkbox" id="air-blue" value="air" data-type="air" />
+										<label for="air-blue">Air</label>
+										<input type="checkbox" id="fire-blue" value="fire" data-type="fire" />
+										<label for="fire-blue">Fire</label>
+										<input type="checkbox" id="rock-blue" value="rock" data-type="rock" />
+										<label for="rock-blue">Rock</label>
+										<input type="checkbox" id="water-blue" value="water" data-type="water" />
+										<label for="water-blue">Water</label>
+										<input type="checkbox" id="nature-blue" value="nature" data-type="nature" />
+										<label for="nature-blue">Nature</label>
+										<input type="checkbox" id="energy-blue" value="energy" data-type="energy" />
+										<label for="energy-blue">Energy</label>
+									</div>
+								</fieldset>
+							</form>
 						</div>
 						<div class="tab-content" data-name="info" data-active="false">
 							<h1>INFO</h1>
@@ -75,7 +100,7 @@
 		</div>
 
 		<div class="container">
-			<div class="controller" data-player="green" data-active="true">
+			<div class="controller" data-player="green">
 				<div class="action-selector">
 					<i class="fa-solid fa-swords action" data-type="attack"></i>
 					<i class="fa-solid fa-arrows-up-down-left-right action" data-type="move"></i>
@@ -92,7 +117,7 @@
 
 			<div class="board"></div>
 
-			<div class="controller" data-player="blue" data-active="false">
+			<div class="controller" data-player="blue">
 				<div class="ability-selector">
 					<div class="ability"><img src="images/thorn.png" alt="thorn vine" /></div>
 					<div class="ability"><img src="images/heal.png" alt="healing" /></div>

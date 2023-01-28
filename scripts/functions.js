@@ -3,6 +3,8 @@ function setup() {
 	generate_default_cells(document.querySelector('.board'))
 	generate_gradients(document.querySelector('.gradients'))
 	set_modal()
+	reset_active_data(['.controller', '.ability', '.action', '.cell'])
+
 	// document.querySelector('.open-modal').click()
 }
 
@@ -51,9 +53,6 @@ function set_modal() {
 	closeModal.addEventListener('click', () => {
 		modal.style.display = 'none'
 	})
-	window.addEventListener('click', (e) => {
-		if (e.target === modal) modal.style.display = 'none'
-	})
 
 	const buttons = Array.from(document.querySelectorAll('.tab-buttons > *'))
 	const contents = Array.from(document.querySelectorAll('.tab-contents > *'))
@@ -65,6 +64,10 @@ function set_modal() {
 			contents.find((content) => content.dataset.name === btn.dataset.name).dataset.active = true
 		})
 	})
+}
+
+function reset_active_data(classes) {
+	classes.forEach((ec) => Array.from(document.querySelectorAll(ec)).forEach((e) => (e.dataset.active = false)))
 }
 //#endregion
 
@@ -89,21 +92,28 @@ function get_cells(type) {
 	return cells
 }
 
+function clear_cells(cells) {
+	cells.flat().forEach((cell) => remove_elemental(cell))
+}
+
 function generate_cells(cells, elements_green, elements_blue) {
-	const num = random('i', 27, 33)
-	for (let i = 0; i < num; i++) {
-		const cell = random(cells.flat().filter((cell) => cell.dataset.occupied === 'false' && cell.dataset.posY < 5))
-		const elemental = Elemental.random(random(elements_green)).bind(cell)
+	const foo = (cell, elements) => {
+		const elemental = Elemental.random(random(elements)).bind(cell)
 		elemental.health = random('i', 1, elemental.health)
 		if (random() < 0.25) elemental.hit = random('i', 0, elemental.health + 1)
 		insert_elemental(elemental.data)
 	}
+
+	const num = random('i', 27, 33)
 	for (let i = 0; i < num; i++) {
-		const cell = random(cells.flat().filter((cell) => cell.dataset.occupied === 'false' && cell.dataset.posY > 6))
-		const elemental = Elemental.random(random(elements_blue)).bind(cell)
-		elemental.health = random('i', 1, elemental.health)
-		if (random() < 0.25) elemental.hit = random('i', 0, elemental.health + 1)
-		insert_elemental(elemental.data)
+		if (elements_green.length > 0) {
+			const cell_green = random(cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.posY < 5))
+			foo(cell_green, elements_green)
+		}
+		if (elements_blue.length > 0) {
+			const cell_blue = random(cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.posY > 6))
+			foo(cell_blue, elements_blue)
+		}
 	}
 }
 //#endregion
