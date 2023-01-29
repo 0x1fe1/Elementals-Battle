@@ -13,8 +13,8 @@
 		<link rel="stylesheet" href="styles/OpenColors.css" />
 		<link rel="stylesheet" href="styles/style.css" />
 
-		<script defer src="scripts/objects.js"></script>
 		<script defer src="scripts/functions.js"></script>
+		<script defer src="scripts/objects.js"></script>
 		<script defer src="scripts/scripts.js"></script>
 	</head>
 	<body>
@@ -107,11 +107,21 @@
 					<i class="fa-solid fa-check action" data-type="confirm"></i>
 				</div>
 				<div class="ability-selector">
-					<div class="ability"><img src="images/meteor.png" alt="meteor shower" /></div>
-					<div class="ability"><img src="images/boot.png" alt="magic boot" /></div>
-					<div class="ability"><img src="images/pyramid.png" alt="pyramid" /></div>
-					<div class="ability"><img src="images/heal.png" alt="healing" /></div>
-					<div class="ability"><img src="images/thorn.png" alt="thorn vine" /></div>
+					<div class="ability" data-type="meteor-shower" data-charge="0">
+						<img src="images/meteor.png" alt="meteor shower" />
+					</div>
+					<div class="ability" data-type="pendulum-of-reversed-time" data-charge="0">
+						<img src="images/boot.png" alt="magic boot" />
+					</div>
+					<div class="ability" data-type="ancient-figurine" data-charge="0">
+						<img src="images/pyramid.png" alt="pyramid" />
+					</div>
+					<div class="ability" data-type="the-lady-of-the-lake-vial" data-charge="0">
+						<img src="images/heal.png" alt="healing" />
+					</div>
+					<div class="ability" data-type="forest-master-staff" data-charge="0">
+						<img src="images/thorn.png" alt="thorn vine" />
+					</div>
 				</div>
 			</div>
 
@@ -119,11 +129,21 @@
 
 			<div class="controller" data-player="blue">
 				<div class="ability-selector">
-					<div class="ability"><img src="images/thorn.png" alt="thorn vine" /></div>
-					<div class="ability"><img src="images/heal.png" alt="healing" /></div>
-					<div class="ability"><img src="images/pyramid.png" alt="pyramid" /></div>
-					<div class="ability"><img src="images/boot.png" alt="magic boot" /></div>
-					<div class="ability"><img src="images/meteor.png" alt="meteor shower" /></div>
+					<div class="ability" data-type="forest-master-staff" data-charge="0">
+						<img src="images/thorn.png" alt="thorn vine" />
+					</div>
+					<div class="ability" data-type="the-lady-of-the-lake-vial" data-charge="0">
+						<img src="images/heal.png" alt="healing" />
+					</div>
+					<div class="ability" data-type="ancient-figurine" data-charge="0">
+						<img src="images/pyramid.png" alt="pyramid" />
+					</div>
+					<div class="ability" data-type="pendulum-of-reversed-time" data-charge="0">
+						<img src="images/boot.png" alt="magic boot" />
+					</div>
+					<div class="ability" data-type="meteor-shower" data-charge="0">
+						<img src="images/meteor.png" alt="meteor shower" />
+					</div>
 				</div>
 				<div class="action-selector">
 					<i class="fa-solid fa-swords action" data-type="attack"></i>

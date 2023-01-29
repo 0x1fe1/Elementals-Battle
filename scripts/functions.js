@@ -1,14 +1,15 @@
-//#region //* Setup
+//#region //* Setup & Event Listeners
 function setup() {
-	generate_default_cells(document.querySelector('.board'))
-	generate_gradients(document.querySelector('.gradients'))
-	set_modal()
-	reset_active_data(['.controller', '.ability', '.action', '.cell'])
+	insert_default_cells(document.querySelector('.board'))
+	insert_gradients(document.querySelector('.gradients'))
+	reset_data_attributes()
+	set_modal_events()
+	configure_settings()
 
 	// document.querySelector('.open-modal').click()
 }
 
-function generate_default_cells(board) {
+function insert_default_cells(board) {
 	for (let i = 0; i < 12; i++) {
 		for (let j = 0; j < 12; j++) {
 			const ld = i % 2 === j % 2 ? 'light' : 'dark'
@@ -18,19 +19,19 @@ function generate_default_cells(board) {
                 data-player="${i < 6 ? 'green' : 'blue'}"
                 data-pos-x="${j}" data-pos-y="${i}"
                 style="background: var(--cc-${ld}-${gb})${i < 6 ? '; rotate: 180deg' : ''}">
-                <svg class="elemental" viewbox="0 0 1 1">
-                    <path class="elemental-shape"/>
-                    <path class="elemental-health-background"/>
-                    <path class="elemental-health-life"/>
-                    <path class="elemental-health-hit"/>
-                    <path class="elemental-health-boundary"/>
+                <svg class="elemental" viewbox="0 0 100 100">
+                    <path class="elemental-shape" />
+                    <circle class="elemental-health-background" cx="50" cy="50" r="45" />
+                    <path class="elemental-health-life" />
+                    <path class="elemental-health-hit" />
+                    <circle class="elemental-health-boundary" cx="50" cy="50" r="45" />
                 </svg>
             </div>`
 		}
 	}
 }
 
-function generate_gradients(gradient_svg) {
+function insert_gradients(gradient_svg) {
 	const elements = Object.values(ELEMENTS)
 	for (var i = 0, gradients = ''; i < 6; i++) {
 		gradients += `
@@ -42,7 +43,7 @@ function generate_gradients(gradient_svg) {
 	gradient_svg.innerHTML += gradients
 }
 
-function set_modal() {
+function set_modal_events() {
 	const modal = document.querySelector('.modal')
 	const openModal = document.querySelector('.open-modal')
 	const closeModal = document.querySelector('.close-modal')
@@ -66,8 +67,33 @@ function set_modal() {
 	})
 }
 
-function reset_active_data(classes) {
-	classes.forEach((ec) => Array.from(document.querySelectorAll(ec)).forEach((e) => (e.dataset.active = false)))
+function reset_data_attributes() {
+	;['.controller', '.ability', '.action', '.cell'].forEach((ec) =>
+		Array.from(document.querySelectorAll(ec)).forEach((e) => (e.dataset.active = false)),
+	)
+	Array.from(document.querySelectorAll('.ability')).forEach((e) => {
+		e.dataset.charge = ABILITY_MAX_CHARGE[e.dataset.type.replace('-', '_').toUpperCase()]
+	})
+}
+
+function configure_settings() {
+	const cells = get_cells()
+
+	const inputs = Array.from(document.querySelectorAll('input'))
+	const confirm_settings = document.querySelector('.close-modal')
+	confirm_settings.addEventListener('click', () => {
+		const foo = (color) =>
+			inputs
+				.filter((input) => input.parentElement.parentElement.dataset.player === color)
+				.map((input) => (input.checked ? input.dataset.type.toUpperCase() : ''))
+				.filter((el) => el !== '')
+				.map((e) => ELEMENTS[e])
+
+		const elements = { green: foo('green'), blue: foo('blue') }
+
+		clear_cells(cells)
+		generate_cells(cells, elements)
+	})
 }
 //#endregion
 
@@ -96,94 +122,112 @@ function clear_cells(cells) {
 	cells.flat().forEach((cell) => remove_elemental(cell))
 }
 
-function generate_cells(cells, elements_green, elements_blue) {
-	const foo = (cell, elements) => {
-		const elemental = Elemental.random(random(elements)).bind(cell)
-		elemental.health = random('i', 1, elemental.health)
-		if (random() < 0.25) elemental.hit = random('i', 0, elemental.health + 1)
-		insert_elemental(elemental.data)
-	}
-
-	const num = random('i', 27, 33)
+function generate_cells(cells, elements) {
+	const num = 30 + random.sign() * 3
 	for (let i = 0; i < num; i++) {
-		if (elements_green.length > 0) {
-			const cell_green = random(cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.posY < 5))
-			foo(cell_green, elements_green)
-		}
-		if (elements_blue.length > 0) {
-			const cell_blue = random(cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.posY > 6))
-			foo(cell_blue, elements_blue)
+		;['green', 'blue'].forEach((col) => {
+			if (elements[col].length === 0) return
+			const cell = random.array(
+				cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.player === col),
+			)
+			const elemental = Elemental.random(random.array(elements[col])).bind(cell)
+			if (random.float() < 0.5) elemental.health = random.int(1, MAX_HEALTH[elemental.level - 1] + 1)
+			if (random.float() < 0.5) elemental.hit = random.int(elemental.health + 1)
+			insert_elemental(elemental.data)
+		})
+	}
+}
+
+//TODO
+function merge_cells(old_cells) {
+	const new_cells = new Array(12).fill().map(() => new Array(12).fill())
+	// exclude the edges, as they cannot be leveled up
+	for (let i = 1; i < 3; i++) {
+		for (let j = 1; j < 3; j++) {
+			// i+0,j+0 i+1,j+0 i+1,j+0   i+0,j+1 i+1,j+1 i+1,j+1   i+0,j+2 i+1,j+2 i+1,j+2
+			const cells_to_check = cells.slice(i - 1, i + 2).map((row) => row.slice(j - 1, j + 2))
+			console.log(cells_to_check)
 		}
 	}
 }
 //#endregion
 
 //#region //* Helpers
-function random() {
-	const args = Array.from(arguments)
-	if (args.length === 0) return Math.random()
+function debug_display_variants(element) {
+	// level 1
+	insert_elemental({ cell: cells[0][0], element, level: 1, health: 1, hit: 0 })
+	insert_elemental({ cell: cells[1][0], element, level: 1, health: 1, hit: 1 })
 
-	if (args.length === 1) {
-		if (typeof args[0] === 'number') return Math.random() * args[0]
-		if (Array.isArray(args[0])) return args[0][Math.floor(Math.random() * args[0].length)]
-		return console.error('random function error: ', args)
-	}
+	// level 2
+	insert_elemental({ cell: cells[0][2], element, level: 2, health: 1, hit: 0 })
+	insert_elemental({ cell: cells[1][2], element, level: 2, health: 1, hit: 1 })
 
-	if (args[0] === 'shuffle' || args[0] === 's') {
-		const array = args[1]
-		let currentIndex = array.length,
-			randomIndex
+	insert_elemental({ cell: cells[3][2], element, level: 2, health: 2, hit: 0 })
+	insert_elemental({ cell: cells[4][2], element, level: 2, health: 2, hit: 1 })
+	insert_elemental({ cell: cells[5][2], element, level: 2, health: 2, hit: 2 })
 
-		while (currentIndex != 0) {
-			randomIndex = Math.floor(Math.random() * currentIndex)
-			currentIndex--
-			;[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
-		}
+	// level 3
+	insert_elemental({ cell: cells[0][4], element, level: 3, health: 1, hit: 0 })
+	insert_elemental({ cell: cells[1][4], element, level: 3, health: 1, hit: 1 })
 
-		return array
-	}
+	insert_elemental({ cell: cells[3][4], element, level: 3, health: 2, hit: 0 })
+	insert_elemental({ cell: cells[4][4], element, level: 3, health: 2, hit: 1 })
+	insert_elemental({ cell: cells[5][4], element, level: 3, health: 2, hit: 2 })
 
-	if (args[0] === 'int' || args[0] === 'i') {
-		return Math.floor(random(...args.slice(1)))
-	}
+	insert_elemental({ cell: cells[7][4], element, level: 3, health: 3, hit: 0 })
+	insert_elemental({ cell: cells[8][4], element, level: 3, health: 3, hit: 1 })
+	insert_elemental({ cell: cells[9][4], element, level: 3, health: 3, hit: 2 })
 
-	if (args[0] === 'weights' || args[0] === 'w') {
-		const weights = args[1]
-		const sum = weights.reduce((a, b) => a + b)
-		const value = random(sum)
-		for (let i = 0, t = 0; i < weights.length; i++) {
-			if (value < t) return i - 1
-			t += weights[i]
-		}
-		return weights.length - 1
-	}
+	insert_elemental({ cell: cells[0][6], element, level: 3, health: 4, hit: 0 })
+	insert_elemental({ cell: cells[1][6], element, level: 3, health: 4, hit: 1 })
+	insert_elemental({ cell: cells[2][6], element, level: 3, health: 4, hit: 2 })
+	insert_elemental({ cell: cells[3][6], element, level: 3, health: 4, hit: 4 })
 
-	if (args[0] === 'divide' || args[0] === 'd') {
-		const num = args[2] ?? 1
-		let value = (args[1] ?? 1) / num
+	insert_elemental({ cell: cells[5][6], element, level: 3, health: 5, hit: 0 })
+	insert_elemental({ cell: cells[6][6], element, level: 3, health: 5, hit: 1 })
+	insert_elemental({ cell: cells[7][6], element, level: 3, health: 5, hit: 2 })
+	insert_elemental({ cell: cells[8][6], element, level: 3, health: 5, hit: 4 })
 
-		// const points = new Array(num - 1)
-		// 	.fill()
-		// 	.map((_) => random(value))
-		// 	.sort()
-		// const result = points.map((p, i) => (i === 0 ? p : p - points[i - 1]))
-		// result[num - 1] = value - points[num - 2]
-
-		const result = new Array(num).fill(-1)
-		const n = getNoise(args[3])
-		for (let i = 0; i < num; i++) {
-			value -= result[i] = i === num - 1 ? value : value * n
-		}
-
-		return random('s', result)
-	}
-
-	if (args.length === 2) {
-		if (typeof args[0] === 'number' && typeof args[1] === 'number')
-			return args[0] + (args[1] - args[0]) * Math.random()
-		return console.error('random function error: ', args)
-	}
-
-	return console.error('random function error: ', args)
+	insert_elemental({ cell: cells[0][8], element, level: 3, health: 6, hit: 0 })
+	insert_elemental({ cell: cells[1][8], element, level: 3, health: 6, hit: 1 })
+	insert_elemental({ cell: cells[2][8], element, level: 3, health: 6, hit: 2 })
+	insert_elemental({ cell: cells[3][8], element, level: 3, health: 6, hit: 4 })
 }
+
+;(function (global) {
+	const rng = (global.random = {})
+
+	rng.float = function (b = 1, a = 0) {
+		if (typeof a !== 'number' || typeof b !== 'number') return console.error('random function error: ', arguments)
+		return a + (b - a) * Math.random()
+	}
+	rng.int = function (b = 1, a = 0) {
+		if (typeof a !== 'number' || typeof b !== 'number') return console.error('random function error: ', arguments)
+		return Math.floor(rng.float(a, b))
+	}
+	rng.sign = function () {
+		return rng.array([1, -1])
+	}
+	rng.array = function (a) {
+		if (!Array.isArray(a)) return console.error('random function error: ', arguments)
+		return a[rng.int(a.length)]
+	}
+	rng.weight = function (a) {
+		// a = [['a', 1], ['b', 2], ['c', 3]]; <-> a: [[value, weight]; N]
+		if (!Array.isArray(a) || a.length === 0 || a.some((v) => !Array.isArray(v) || v.length === 0))
+			return console.error('random function error: ', arguments)
+
+		const values = a.map((value) => value[0])
+		const weights = a.map((value) => value[1])
+		const sum = weights.reduce((a, b) => a + b)
+
+		const r = rng.int(sum)
+		for (let i = 0, current = 0; i < a.length; i++) {
+			if (r < current) return values[i - 1]
+			current += weights[i]
+		}
+
+		return values[a.length - 1]
+	}
+})(this)
 //#endregion
