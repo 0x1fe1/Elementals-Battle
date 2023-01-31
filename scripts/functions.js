@@ -1,6 +1,7 @@
 //#region //* Setup & Event Listeners
 function setup() {
-	insert_default_cells(document.querySelector('.board'))
+	// updateViewportSize()
+	insert_default_cells(document.querySelector('[data-dom="board"]'))
 	insert_gradients(document.querySelector('.gradients'))
 	reset_data_attributes()
 	set_modal_events()
@@ -9,15 +10,20 @@ function setup() {
 	// document.querySelector('.open-modal').click()
 }
 
+function updateViewportSize() {
+	const [vh, vw] = [window.innerHeight * 0.01, window.innerWidth * 0.01]
+	document.documentElement.style.setProperty('--vmin', `${Math.min(vw, vh)}px`)
+	document.documentElement.style.setProperty('--vmax', `${Math.max(vw, vh)}px`)
+}
+
 function insert_default_cells(board) {
 	for (let i = 0; i < 12; i++) {
 		for (let j = 0; j < 12; j++) {
 			const ld = i % 2 === j % 2 ? 'light' : 'dark'
 			const gb = i < 6 ? 'green' : 'blue'
 			board.innerHTML += `
-            <div class="cell" data-occupied="false" 
+            <div data-dom="cell" data-occupied="false" 
                 data-player="${i < 6 ? 'green' : 'blue'}"
-                data-pos-x="${j}" data-pos-y="${i}"
                 style="background: var(--cc-${ld}-${gb})${i < 6 ? '; rotate: 180deg' : ''}">
                 <svg class="elemental" viewbox="0 0 100 100">
                     <path class="elemental-shape" />
@@ -68,10 +74,18 @@ function set_modal_events() {
 }
 
 function reset_data_attributes() {
-	;['.controller', '.ability', '.action', '.cell'].forEach((ec) =>
-		Array.from(document.querySelectorAll(ec)).forEach((e) => (e.dataset.active = false)),
-	)
-	Array.from(document.querySelectorAll('.ability')).forEach((e) => {
+	//* Active States
+	;['controller', 'ability', 'action', 'cell'].forEach((ec) => get_elements.data_dom(ec).forEach(deactivate))
+
+	//* Which Player
+	;['green', 'blue'].forEach((c) => {
+		get_elements
+			.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="ability"],[data-dom="action"])`)
+			.forEach((e) => (e.dataset.player = c))
+	})
+
+	//* Ability Charges
+	get_elements.data_dom('ability').forEach((e) => {
 		e.dataset.charge = ABILITY_MAX_CHARGE[e.dataset.type.replace('-', '_').toUpperCase()]
 	})
 }
@@ -111,10 +125,10 @@ function remove_elemental(cell) {
 }
 
 function get_cells(type) {
-	const cells_raw = Array.from(document.querySelectorAll('.cell'))
+	const cells_raw = get_elements.data_dom('cell')
 	const cells = new Array(12).fill().map((_, i) => new Array(12).fill().map((_, j) => cells_raw[j + i * 12]))
-	if (type === 'green') return cells.filter((_, i) => i < 6)
-	if (type === 'blue') return cells.filter((_, i) => i >= 6)
+	if (type === 'green') return cells.slice(0, 6)
+	if (type === 'blue') return cells.slice(6, 12)
 	return cells
 }
 
@@ -138,6 +152,13 @@ function generate_cells(cells, elements) {
 	}
 }
 
+function activate(element) {
+	element.dataset.active = true
+}
+function deactivate(element) {
+	element.dataset.active = false
+}
+
 //TODO
 function merge_cells(old_cells) {
 	const new_cells = new Array(12).fill().map(() => new Array(12).fill())
@@ -153,6 +174,19 @@ function merge_cells(old_cells) {
 //#endregion
 
 //#region //* Helpers
+const get_data = {
+	dom: (e) => e.dataset.dom,
+	player: (e) => e.dataset.player,
+	type: (e) => e.dataset.type,
+	occupied: (e) => e.dataset.occupied,
+	active: (e) => e.dataset.active,
+}
+const get_elements = {
+	data_dom: (query) => Array.from(document.querySelectorAll(`[data-dom="${query}"]`)),
+	data: (data, query) => Array.from(document.querySelectorAll(`[data-${data}="${query}"]`)),
+	query: (query) => Array.from(document.querySelectorAll(`${query}`)),
+}
+
 function debug_display_variants(element) {
 	// level 1
 	insert_elemental({ cell: cells[0][0], element, level: 1, health: 1, hit: 0 })

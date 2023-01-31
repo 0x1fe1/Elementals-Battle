@@ -7,7 +7,8 @@
 		<title>Elementals Battle</title>
 		<link rel="icon" type="image/x-icon" href="images/favicon.ico" />
 
-		<link rel="stylesheet" href="fontawesome/css/fontawesome.css" />
+		<!-- <link rel="stylesheet" href="fontawesome/css/fontawesome.css" /> -->
+		<link rel="stylesheet" href="fontawesome/css/fontawesome.min.css" />
 		<link rel="stylesheet" href="fontawesome/css/solid.css" />
 
 		<link rel="stylesheet" href="styles/OpenColors.css" />
@@ -18,7 +19,7 @@
 		<script defer src="scripts/scripts.js"></script>
 	</head>
 	<body>
-		<div class="modal-container">
+		<div data-dom="modal-container">
 			<i class="fa-solid fa-bars open-modal"></i>
 
 			<div class="modal">
@@ -99,56 +100,38 @@
 			</div>
 		</div>
 
-		<div class="container">
-			<div class="controller" data-player="green">
+		<div data-dom="game-container">
+			<div data-dom="controller" data-player="green">
 				<div class="action-selector">
-					<i class="fa-solid fa-swords action" data-type="attack"></i>
-					<i class="fa-solid fa-arrows-up-down-left-right action" data-type="move"></i>
-					<i class="fa-solid fa-check action" data-type="confirm"></i>
+					<i class="fa-solid fa-check" data-dom="action" data-type="confirm"></i>
+					<i class="fa-solid fa-forward" data-dom="action" data-type="skip"></i>
+					<i class="fa-solid fa-up-down-left-right" data-dom="action" data-type="move"></i>
+					<i class="fa-solid fa-swords" data-dom="action" data-type="attack"></i>
 				</div>
 				<div class="ability-selector">
-					<div class="ability" data-type="meteor-shower" data-charge="0">
-						<img src="images/meteor.png" alt="meteor shower" />
-					</div>
-					<div class="ability" data-type="pendulum-of-reversed-time" data-charge="0">
-						<img src="images/boot.png" alt="magic boot" />
-					</div>
-					<div class="ability" data-type="ancient-figurine" data-charge="0">
-						<img src="images/pyramid.png" alt="pyramid" />
-					</div>
-					<div class="ability" data-type="the-lady-of-the-lake-vial" data-charge="0">
-						<img src="images/heal.png" alt="healing" />
-					</div>
-					<div class="ability" data-type="forest-master-staff" data-charge="0">
-						<img src="images/thorn.png" alt="thorn vine" />
-					</div>
+					<img data-dom="ability" data-type="meteor-shower" src="images/meteor.png" alt="" />
+					<img data-dom="ability" data-type="pendulum-of-reversed-time" src="images/boot.png" alt="" />
+					<img data-dom="ability" data-type="ancient-figurine" src="images/pyramid.png" alt="" />
+					<img data-dom="ability" data-type="the-lady-of-the-lake-vial" src="images/heal.png" alt="" />
+					<img data-dom="ability" data-type="forest-master-staff" src="images/thorn.png" alt="" />
 				</div>
 			</div>
 
-			<div class="board"></div>
+			<div data-dom="board"></div>
 
-			<div class="controller" data-player="blue">
+			<div data-dom="controller" data-player="blue">
 				<div class="ability-selector">
-					<div class="ability" data-type="forest-master-staff" data-charge="0">
-						<img src="images/thorn.png" alt="thorn vine" />
-					</div>
-					<div class="ability" data-type="the-lady-of-the-lake-vial" data-charge="0">
-						<img src="images/heal.png" alt="healing" />
-					</div>
-					<div class="ability" data-type="ancient-figurine" data-charge="0">
-						<img src="images/pyramid.png" alt="pyramid" />
-					</div>
-					<div class="ability" data-type="pendulum-of-reversed-time" data-charge="0">
-						<img src="images/boot.png" alt="magic boot" />
-					</div>
-					<div class="ability" data-type="meteor-shower" data-charge="0">
-						<img src="images/meteor.png" alt="meteor shower" />
-					</div>
+					<img data-dom="ability" data-type="forest-master-staff" src="images/thorn.png" alt="" />
+					<img data-dom="ability" data-type="the-lady-of-the-lake-vial" src="images/heal.png" alt="" />
+					<img data-dom="ability" data-type="ancient-figurine" src="images/pyramid.png" alt="" />
+					<img data-dom="ability" data-type="pendulum-of-reversed-time" src="images/boot.png" alt="" />
+					<img data-dom="ability" data-type="meteor-shower" src="images/meteor.png" alt="" />
 				</div>
 				<div class="action-selector">
-					<i class="fa-solid fa-swords action" data-type="attack"></i>
-					<i class="fa-solid fa-arrows-up-down-left-right action" data-type="move"></i>
-					<i class="fa-solid fa-check action" data-type="confirm"></i>
+					<i class="fa-solid fa-swords" data-dom="action" data-type="attack"></i>
+					<i class="fa-solid fa-up-down-left-right" data-dom="action" data-type="move"></i>
+					<i class="fa-solid fa-forward" data-dom="action" data-type="skip"></i>
+					<i class="fa-solid fa-check" data-dom="action" data-type="confirm"></i>
 				</div>
 			</div>
 		</div>
