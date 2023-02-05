@@ -1,4 +1,5 @@
 @import 'OpenColors.css';
+@import url('https://fonts.cdnfonts.com/css/ocr-a-extended');
 
 * {
 	box-sizing: border-box;
@@ -117,6 +118,7 @@ i {
 	background-color: var(--oc-gray-8);
 	border: calc(0.05 * var(--action-ability-size)) solid var(--oc-gray-7);
 
+	position: relative;
 	z-index: 0;
 }
 [data-dom='ability'] > img {
@@ -131,6 +133,21 @@ i {
 [data-dom='controller'][data-player='blue'] [data-dom='ability'] {
 	rotate: 0deg;
 	color: var(--oc-blue-6);
+}
+
+[data-dom='ability']::before {
+	content: attr(data-charge) '/' attr(data-max-charge);
+	position: absolute;
+	bottom: calc(-0.2 * var(--vmin));
+	left: 0;
+
+	width: calc(0.9 * var(--action-ability-size));
+
+	font-family: 'OCR A Extended', sans-serif;
+	text-align: center;
+	font-size: calc(var(--action-ability-size) * 0.25);
+	color: var(--oc-gray-1);
+	text-shadow: -1px 1px 0 #000, 1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
 }
 
 /*   actions fuckery   */

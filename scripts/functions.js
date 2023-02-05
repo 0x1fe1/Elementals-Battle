@@ -5,7 +5,8 @@ function setup() {
 	insert_gradients(document.querySelector('.gradients'))
 	reset_data_attributes()
 	set_modal_events()
-	configure_settings()
+	set_cell_ability_action_events()
+	set_settings_events()
 
 	// document.querySelector('.open-modal').click()
 }
@@ -73,24 +74,57 @@ function set_modal_events() {
 	})
 }
 
-function reset_data_attributes() {
-	//* Active States
-	;['controller', 'ability', 'action', 'cell'].forEach((ec) => get_elements.data_dom(ec).forEach(deactivate))
+function set_cell_ability_action_events() {
+	const cells_dom = get_elements.data_dom('cell')
+	const actions_dom = get_elements.data_dom('action')
+	const abilities_dom = get_elements.data_dom('ability')
 
-	//* Which Player
-	;['green', 'blue'].forEach((c) => {
-		get_elements
-			.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="ability"],[data-dom="action"])`)
-			.forEach((e) => (e.dataset.player = c))
+	cells_dom.forEach((cell) => {
+		let last_pointerId = 0
+		cell.addEventListener('pointerdown', (e) => {
+			last_pointerId = e.pointerId
+		})
+		cell.addEventListener('pointerup', (e) => {
+			if (last_pointerId !== e.pointerId) return
+
+			const target = get_data.occupied(e.target) === 'false' ? e.target : e.target.parentElement.parentElement
+			console.log({ event: e, dataset: e.target.dataset, target: target })
+
+			get_elements.query(`[data-active="true"][data-dom="cell"]`).forEach(deactivate)
+			activate(target)
+		})
 	})
+	abilities_dom.forEach((ability) => {
+		let last_pointerId = 0
+		ability.addEventListener('pointerdown', (e) => {
+			last_pointerId = e.pointerId
+		})
+		ability.addEventListener('pointerup', (e) => {
+			if (last_pointerId !== e.pointerId) return
+			console.log(e)
 
-	//* Ability Charges
-	get_elements.data_dom('ability').forEach((e) => {
-		e.dataset.charge = ABILITY_MAX_CHARGE[e.dataset.type.replace('-', '_').toUpperCase()]
+			const target = e.target.nodeName === 'IMG' ? e.target.parentElement : e.target
+
+			get_elements.query(`[data-active="true"][data-dom="ability"]`).forEach(deactivate)
+			activate(target)
+		})
+	})
+	actions_dom.forEach((action) => {
+		let last_pointerId = 0
+		action.addEventListener('pointerdown', (e) => {
+			last_pointerId = e.pointerId
+		})
+		action.addEventListener('pointerup', (e) => {
+			console.log({ event: e, dataset: e.target.dataset })
+			if (last_pointerId !== e.pointerId) return
+
+			get_elements.query(`[data-active="true"][data-dom="action"]`).forEach(deactivate)
+			activate(e.target)
+		})
 	})
 }
 
-function configure_settings() {
+function set_settings_events() {
 	const cells = get_cells()
 
 	const inputs = Array.from(document.querySelectorAll('input'))
@@ -107,6 +141,23 @@ function configure_settings() {
 
 		clear_cells(cells)
 		generate_cells(cells, elements)
+	})
+}
+
+function reset_data_attributes() {
+	//* Active States
+	;['controller', 'ability', 'action', 'cell'].forEach((ec) => get_elements.data_dom(ec).forEach(deactivate))
+
+	//* Which Player
+	;['green', 'blue'].forEach((c) => {
+		get_elements.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="ability"],[data-dom="action"])`).forEach((e) => (e.dataset.player = c))
+	})
+
+	//* Ability Charges
+	get_elements.data_dom('ability').forEach((e) => {
+		const type = e.dataset.type.replaceAll('-', '_').toUpperCase()
+		set_data(e, 'charge', random.int(ABILITY_MAX_CHARGE[type]))
+		set_data(e, 'maxCharge', ABILITY_MAX_CHARGE[type])
 	})
 }
 //#endregion
@@ -141,9 +192,7 @@ function generate_cells(cells, elements) {
 	for (let i = 0; i < num; i++) {
 		;['green', 'blue'].forEach((col) => {
 			if (elements[col].length === 0) return
-			const cell = random.array(
-				cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.player === col),
-			)
+			const cell = random.array(cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.player === col))
 			const elemental = Elemental.random(random.array(elements[col])).bind(cell)
 			if (random.float() < 0.5) elemental.health = random.int(1, MAX_HEALTH[elemental.level - 1] + 1)
 			if (random.float() < 0.5) elemental.hit = random.int(elemental.health + 1)
@@ -187,7 +236,12 @@ const get_elements = {
 	query: (query) => Array.from(document.querySelectorAll(`${query}`)),
 }
 
+function set_data(element, type, data) {
+	element.dataset[type] = data
+}
+
 function debug_display_variants(element) {
+	const cells = get_cells()
 	// level 1
 	insert_elemental({ cell: cells[0][0], element, level: 1, health: 1, hit: 0 })
 	insert_elemental({ cell: cells[1][0], element, level: 1, health: 1, hit: 1 })
@@ -248,8 +302,7 @@ function debug_display_variants(element) {
 	}
 	rng.weight = function (a) {
 		// a = [['a', 1], ['b', 2], ['c', 3]]; <-> a: [[value, weight]; N]
-		if (!Array.isArray(a) || a.length === 0 || a.some((v) => !Array.isArray(v) || v.length === 0))
-			return console.error('random function error: ', arguments)
+		if (!Array.isArray(a) || a.length === 0 || a.some((v) => !Array.isArray(v) || v.length === 0)) return console.error('random function error: ', arguments)
 
 		const values = a.map((value) => value[0])
 		const weights = a.map((value) => value[1])
