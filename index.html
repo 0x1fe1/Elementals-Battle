@@ -10,8 +10,8 @@
 		<link rel="stylesheet" href="fontawesome/css/fontawesome.min.css" />
 		<link rel="stylesheet" href="fontawesome/css/solid.css" />
 
-		<link rel="stylesheet" href="styles/OpenColors.css" />
-		<link rel="stylesheet" href="styles/style.css" />
+		<link rel="stylesheet" href="styles/colors.css" />
+		<link rel="stylesheet" href="styles/styles.css" />
 
 		<script defer src="scripts/functions.js"></script>
 		<script defer src="scripts/objects.js"></script>
@@ -23,15 +23,15 @@
 
 			<div class="modal">
 				<div class="modal-content">
-					<i class="fa-solid fa-check close-modal"></i>
+					<i class="fa-solid fa-xmark close-modal"></i>
 
 					<div class="tab-buttons">
-						<i class="fa-solid fa-gear tab-button" data-name="settings" data-active="true"></i>
-						<i class="fa-solid fa-question tab-button" data-name="info" data-active="false"></i>
+						<i class="fa-solid fa-gear tab-button" data-name="settings" data-active="false"></i>
+						<i class="fa-solid fa-question tab-button" data-name="info" data-active="true"></i>
 					</div>
 
 					<div class="tab-contents">
-						<div class="tab-content" data-name="settings" data-active="true">
+						<div class="tab-content" data-name="settings" data-active="false">
 							<h1>SETTINGS</h1>
 
 							<form id="element-selector">
@@ -70,28 +70,61 @@
 									</div>
 								</fieldset>
 							</form>
+
+							<i class="fa-solid fa-check submit-settings"></i>
 						</div>
-						<div class="tab-content" data-name="info" data-active="false">
+						<div class="tab-content" data-name="info" data-active="true">
 							<h1>INFO</h1>
+							<p>Mission: destroy all enemy elementals.</p>
 							<p>
-								Lorem, ipsum dolor sit amet consectetur adipisicing elit. Deleniti quibusdam ipsam
-								ducimus dolorum, architecto tempora eligendi non nam accusamus unde odit, repellendus
-								voluptatibus placeat iste aperiam earum totam harum cum dolore? Velit, animi. Tenetur,
-								dicta eos! Temporibus dolor cumque quos. Expedita aliquid dolor cum harum molestias
-								dicta similique. Rem sequi fuga odio quasi obcaecati alias fugiat optio eos officia
-								architecto tenetur vel, magni dolore eum repellat illum tempora aliquam perferendis
-								harum quae, neque laudantium modi dicta. Expedita saepe suscipit sapiente harum
-								cupiditate reprehenderit? Deleniti, quibusdam? Autem tenetur, repellendus similique
-								illum quis commodi laboriosam repudiandae quia mollitia magni culpa corporis recusandae
-								veritatis expedita distinctio aperiam fugiat quas blanditiis. Officiis odio ipsam ut
-								molestias hic eos sed placeat, sequi debitis enim aspernatur, repellat ad eum soluta,
-								accusantium minima! A minima ipsum, deserunt consectetur soluta distinctio error odit
-								laboriosam neque itaque iusto id maiores, ducimus facere dolor rerum omnis est
-								cupiditate impedit expedita? Pariatur quaerat iste nesciunt earum illo adipisci nostrum
-								quas quidem odio obcaecati eum, iusto quos, nisi quasi voluptatum maxime modi quo ab
-								repellat saepe laborum quae inventore optio. Quaerat placeat et fugiat minima amet
-								praesentium quas molestiae quod, quisquam labore facilis ipsum iure, unde iusto deserunt
-								qui maiores sed ipsam.
+								During your turn, you may move your elemental and attack the enemy within the
+								elemental's attack zone.
+							</p>
+							<p>Your turn ends if there is no enemy in your elemantal's attack zone.</p>
+							<p>
+								Three identical elementals arranged in a vertical, horizontal or diagonal line merge to
+								create one stronger elemental.
+							</p>
+							<p>
+								The elemental's attack zone is highlited on the opponent's field. The higher the
+								elemental's level, the larger its range. Once any high level elemental is killed, it
+								will transform into a low level elemental.
+							</p>
+							<p>
+								Two pyramids are added to the last rows of the field after each turn. Pyramids can move
+								your elemental forward.
+							</p>
+							<p>
+								Spells: You can only use one spell per turn. The spheres around a spell icon represent
+								the number of elementals collected. You can cast a spell once all the spheres are
+								glowing blue.
+							</p>
+							<p class="spell forest-master-staff">
+								1) Forest Master Staff <br />
+								- inflicts damage to one elemental. Avaliable after you collect 4 level 2 elementals.
+								This powerful spell can kill 1st and 2nd level elementals instantly, and deal heavy
+								damage to 3rd level elementals.
+							</p>
+							<p class="spell the-lady-of-the-lake-vial">
+								2) The Lady of the Lake's Vial <br />
+								- fully restores an elemental's health. Avaliable after collecting 5 level 2 elementals.
+							</p>
+							<p class="spell ancient-figurine">
+								3) Ancient Figurine <br />
+								- inflicts damage to all elementals in vertical and horizontal lines. Avaliable after
+								collecting 7 level 2 elementals. Place it in a free cell on the opponent's field. It
+								kills the smallest elementals instantly and inflicts damage to all elementald in
+								vertical and horizontal lines.
+							</p>
+							<p class="spell pendulum-of-reversed-time">
+								4) Pendulum of Reversed Time <br />
+								- gives the player one additional move. Avaliable after collecting 9 level 2 elementals
+							</p>
+							<p class="spell meteor-shower">
+								5) Dragon Amulet <br />
+								- damages all elementals in a 3x3 radius. Avaliable after collecting 10 level 2
+								elementals. Instantly kills all 1st and 2nd level elementals and inflicts damage on all
+								3rd level elementals in a 3x3 radius.
 							</p>
 						</div>
 					</div>
@@ -109,19 +142,19 @@
 				</div>
 				<div class="ability-selector">
 					<div data-dom="ability" data-type="meteor-shower">
-						<img src="images/meteor.png" alt="" />
+						<img data-dom="ability_img" src="images/meteor.png" alt="" />
 					</div>
 					<div data-dom="ability" data-type="pendulum-of-reversed-time">
-						<img src="images/boot.png" alt="" />
+						<img data-dom="ability_img" src="images/boot.png" alt="" />
 					</div>
 					<div data-dom="ability" data-type="ancient-figurine">
-						<img src="images/pyramid.png" alt="" />
+						<img data-dom="ability_img" src="images/pyramid.png" alt="" />
 					</div>
 					<div data-dom="ability" data-type="the-lady-of-the-lake-vial">
-						<img src="images/heal.png" alt="" />
+						<img data-dom="ability_img" src="images/heal.png" alt="" />
 					</div>
 					<div data-dom="ability" data-type="forest-master-staff">
-						<img src="images/thorn.png" alt="" />
+						<img data-dom="ability_img" src="images/thorn.png" alt="" />
 					</div>
 				</div>
 			</div>
@@ -131,19 +164,19 @@
 			<div data-dom="controller" data-player="blue">
 				<div class="ability-selector">
 					<div data-dom="ability" data-type="forest-master-staff">
-						<img src="images/thorn.png" alt="" />
+						<img data-dom="ability_img" src="images/thorn.png" alt="" />
 					</div>
 					<div data-dom="ability" data-type="the-lady-of-the-lake-vial">
-						<img src="images/heal.png" alt="" />
+						<img data-dom="ability_img" src="images/heal.png" alt="" />
 					</div>
 					<div data-dom="ability" data-type="ancient-figurine">
-						<img src="images/pyramid.png" alt="" />
+						<img data-dom="ability_img" src="images/pyramid.png" alt="" />
 					</div>
 					<div data-dom="ability" data-type="pendulum-of-reversed-time">
-						<img src="images/boot.png" alt="" />
+						<img data-dom="ability_img" src="images/boot.png" alt="" />
 					</div>
 					<div data-dom="ability" data-type="meteor-shower">
-						<img src="images/meteor.png" alt="" />
+						<img data-dom="ability_img" src="images/meteor.png" alt="" />
 					</div>
 				</div>
 				<div class="action-selector">

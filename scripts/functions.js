@@ -25,13 +25,13 @@ function insert_default_cells(board) {
 			board.innerHTML += `
             <div data-dom="cell" data-occupied="false" 
                 data-player="${i < 6 ? 'green' : 'blue'}"
-                style="background: var(--cc-${ld}-${gb})${i < 6 ? '; rotate: 180deg' : ''}">
-                <svg class="elemental" viewbox="0 0 100 100">
-                    <path class="elemental-shape" />
-                    <circle class="elemental-health-background" cx="50" cy="50" r="45" />
-                    <path class="elemental-health-life" />
-                    <path class="elemental-health-hit" />
-                    <circle class="elemental-health-boundary" cx="50" cy="50" r="45" />
+                style="background: var(--${ld}-${gb})${i < 6 ? '; rotate: 180deg' : ''}">
+                <svg class="elemental" viewbox="0 0 100 100" data-dom="cell_svg">
+                    <path class="elemental-shape" data-dom="cell_path"/>
+                    <circle class="elemental-health-background" cx="50" cy="50" r="45" data-dom="cell_path"/>
+                    <path class="elemental-health-life" data-dom="cell_path"/>
+                    <path class="elemental-health-hit" data-dom="cell_path"/>
+                    <circle class="elemental-health-boundary" cx="50" cy="50" r="45" data-dom="cell_path"/>
                 </svg>
             </div>`
 		}
@@ -43,8 +43,8 @@ function insert_gradients(gradient_svg) {
 	for (var i = 0, gradients = ''; i < 6; i++) {
 		gradients += `
         <radialgradient id="gradient-${elements[i]}">
-            <stop offset="10%" stop-color="var(--cc-gradient-${elements[i]}-1)" />
-            <stop offset="90%" stop-color="var(--cc-gradient-${elements[i]}-2)" />
+            <stop offset="10%" stop-color="var(--gradient-${elements[i]}-1)" />
+            <stop offset="90%" stop-color="var(--gradient-${elements[i]}-2)" />
         </radialgradient>`
 	}
 	gradient_svg.innerHTML += gradients
@@ -79,47 +79,27 @@ function set_cell_ability_action_events() {
 	const actions_dom = get_elements.data_dom('action')
 	const abilities_dom = get_elements.data_dom('ability')
 
-	cells_dom.forEach((cell) => {
+	;[...cells_dom, ...actions_dom, ...abilities_dom].forEach((element) => {
 		let last_pointerId = 0
-		cell.addEventListener('pointerdown', (e) => {
+		element.addEventListener('pointerdown', (e) => {
 			last_pointerId = e.pointerId
 		})
-		cell.addEventListener('pointerup', (e) => {
+		element.addEventListener('pointerup', (e) => {
 			if (last_pointerId !== e.pointerId) return
 
-			const target = get_data.occupied(e.target) === 'false' ? e.target : e.target.parentElement.parentElement
-			console.log({ event: e, dataset: e.target.dataset, target: target })
+			const element_dom = get_data.dom(e.target)
+			if (!/cell|action|ability/.test(element_dom)) return console.error(element_dom, e)
 
-			get_elements.query(`[data-active="true"][data-dom="cell"]`).forEach(deactivate)
+			let target, true_dom
+			if (/\b(cell|action|ability)\b/.test(element_dom)) [target, true_dom] = [e.target, element_dom]
+			if (element_dom === 'cell_svg') [target, true_dom] = [e.target.parentElement, 'cell']
+			if (element_dom === 'cell_path') [target, true_dom] = [e.target.parentElement.parentElement, 'cell']
+			if (element_dom === 'ability_img') [target, true_dom] = [e.target.parentElement, 'ability']
+
+			console.log(get_data.dom(target))
+
+			get_elements.query(`[data-active="true"][data-dom="${true_dom}"]`).forEach(deactivate)
 			activate(target)
-		})
-	})
-	abilities_dom.forEach((ability) => {
-		let last_pointerId = 0
-		ability.addEventListener('pointerdown', (e) => {
-			last_pointerId = e.pointerId
-		})
-		ability.addEventListener('pointerup', (e) => {
-			if (last_pointerId !== e.pointerId) return
-			console.log(e)
-
-			const target = e.target.nodeName === 'IMG' ? e.target.parentElement : e.target
-
-			get_elements.query(`[data-active="true"][data-dom="ability"]`).forEach(deactivate)
-			activate(target)
-		})
-	})
-	actions_dom.forEach((action) => {
-		let last_pointerId = 0
-		action.addEventListener('pointerdown', (e) => {
-			last_pointerId = e.pointerId
-		})
-		action.addEventListener('pointerup', (e) => {
-			console.log({ event: e, dataset: e.target.dataset })
-			if (last_pointerId !== e.pointerId) return
-
-			get_elements.query(`[data-active="true"][data-dom="action"]`).forEach(deactivate)
-			activate(e.target)
 		})
 	})
 }
@@ -150,7 +130,9 @@ function reset_data_attributes() {
 
 	//* Which Player
 	;['green', 'blue'].forEach((c) => {
-		get_elements.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="ability"],[data-dom="action"])`).forEach((e) => (e.dataset.player = c))
+		get_elements
+			.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="ability"],[data-dom="action"])`)
+			.forEach((e) => (e.dataset.player = c))
 	})
 
 	//* Ability Charges
@@ -192,7 +174,9 @@ function generate_cells(cells, elements) {
 	for (let i = 0; i < num; i++) {
 		;['green', 'blue'].forEach((col) => {
 			if (elements[col].length === 0) return
-			const cell = random.array(cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.player === col))
+			const cell = random.array(
+				cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.player === col),
+			)
 			const elemental = Elemental.random(random.array(elements[col])).bind(cell)
 			if (random.float() < 0.5) elemental.health = random.int(1, MAX_HEALTH[elemental.level - 1] + 1)
 			if (random.float() < 0.5) elemental.hit = random.int(elemental.health + 1)
@@ -302,7 +286,8 @@ function debug_display_variants(element) {
 	}
 	rng.weight = function (a) {
 		// a = [['a', 1], ['b', 2], ['c', 3]]; <-> a: [[value, weight]; N]
-		if (!Array.isArray(a) || a.length === 0 || a.some((v) => !Array.isArray(v) || v.length === 0)) return console.error('random function error: ', arguments)
+		if (!Array.isArray(a) || a.length === 0 || a.some((v) => !Array.isArray(v) || v.length === 0))
+			return console.error('random function error: ', arguments)
 
 		const values = a.map((value) => value[0])
 		const weights = a.map((value) => value[1])

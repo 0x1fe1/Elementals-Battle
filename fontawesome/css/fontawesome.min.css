@@ -18,6 +18,10 @@
 	content: '\f00c';
 }
 
+.fa-xmark::before {
+	content: '\f00d';
+}
+
 .fa-gear::before {
 	content: '\f013';
 }
