@@ -11,7 +11,7 @@ const MAX_HEALTH = [1, 2, 6]
 const DAMAGE = [1, 2, 4]
 const REACH = [3, 5, 7]
 
-const ABILITY_MAX_CHARGE = {
+const SPELL_MAX_CHARGE = {
 	FOREST_MASTER_STAFF: 4,
 	THE_LADY_OF_THE_LAKE_VIAL: 5,
 	ANCIENT_FIGURINE: 7,
@@ -19,7 +19,7 @@ const ABILITY_MAX_CHARGE = {
 	METEOR_SHOWER: 10,
 }
 
-const ABILITY_DAMAGES = {
+const SPELL_DAMAGES = {
 	THORN_VINES: 2,
 	PYRAMID: 1,
 	METEOR_SHOWER: 4,
@@ -57,6 +57,10 @@ class Elemental {
 	bind(cell) {
 		this.cell = cell
 		return this
+	}
+
+	upgrade() {
+		return new Elemental(this.element, min(this.level + 1, LEVELS[LEVELS.length - 1]))
 	}
 
 	get data() {

@@ -5,10 +5,10 @@ function setup() {
 	insert_gradients(document.querySelector('.gradients'))
 	reset_data_attributes()
 	set_modal_events()
-	set_cell_ability_action_events()
+	set_cell_spell_action_events()
 	set_settings_events()
 
-	// document.querySelector('.open-modal').click()
+	// get_elements.query('.open-modal')[0].click()
 }
 
 function updateViewportSize() {
@@ -20,12 +20,10 @@ function updateViewportSize() {
 function insert_default_cells(board) {
 	for (let i = 0; i < 12; i++) {
 		for (let j = 0; j < 12; j++) {
-			const ld = i % 2 === j % 2 ? 'light' : 'dark'
-			const gb = i < 6 ? 'green' : 'blue'
 			board.innerHTML += `
             <div data-dom="cell" data-occupied="false" 
-                data-player="${i < 6 ? 'green' : 'blue'}"
-                style="background: var(--${ld}-${gb})${i < 6 ? '; rotate: 180deg' : ''}">
+                data-player="${i < 6 ? 'blue' : 'green'}"
+                data-shade="${i % 2 === j % 2 ? 'light' : 'dark'}">
                 <svg class="elemental" viewbox="0 0 100 100" data-dom="cell_svg">
                     <path class="elemental-shape" data-dom="cell_path"/>
                     <circle class="elemental-health-background" cx="50" cy="50" r="45" data-dom="cell_path"/>
@@ -44,7 +42,7 @@ function insert_gradients(gradient_svg) {
 		gradients += `
         <radialgradient id="gradient-${elements[i]}">
             <stop offset="10%" stop-color="var(--gradient-${elements[i]}-1)" />
-            <stop offset="90%" stop-color="var(--gradient-${elements[i]}-2)" />
+            <stop offset="100%" stop-color="var(--gradient-${elements[i]}-2)" />
         </radialgradient>`
 	}
 	gradient_svg.innerHTML += gradients
@@ -56,10 +54,10 @@ function set_modal_events() {
 	const closeModal = document.querySelector('.close-modal')
 
 	openModal.addEventListener('click', () => {
-		modal.style.display = 'grid'
+		modal.dataset.active = true
 	})
 	closeModal.addEventListener('click', () => {
-		modal.style.display = 'none'
+		modal.dataset.active = false
 	})
 
 	const buttons = Array.from(document.querySelectorAll('.tab-buttons > *'))
@@ -74,32 +72,35 @@ function set_modal_events() {
 	})
 }
 
-function set_cell_ability_action_events() {
-	const cells_dom = get_elements.data_dom('cell')
-	const actions_dom = get_elements.data_dom('action')
-	const abilities_dom = get_elements.data_dom('ability')
+function set_cell_spell_action_events() {
+	const cells_dom = get_elements.dom('cell')
+	const actions_dom = get_elements.dom('action')
+	const abilities_dom = get_elements.dom('spell')
 
 	;[...cells_dom, ...actions_dom, ...abilities_dom].forEach((element) => {
-		let last_pointerId = 0
+		let last_pointerId = 0,
+			has_moved = false
 		element.addEventListener('pointerdown', (e) => {
 			last_pointerId = e.pointerId
 		})
+		element.addEventListener('pointermove', (e) => {
+			if (e.pointerType === 'mouse') return
+			has_moved = true
+		})
 		element.addEventListener('pointerup', (e) => {
 			if (last_pointerId !== e.pointerId) return
+			if (has_moved) return (has_moved = false)
 
-			const element_dom = get_data.dom(e.target)
-			if (!/cell|action|ability/.test(element_dom)) return console.error(element_dom, e)
+			const element_dom = get_data(e.target).dom
+			if (!/cell|action|spell/.test(element_dom)) return console.error(element_dom, e)
 
 			let target, true_dom
-			if (/\b(cell|action|ability)\b/.test(element_dom)) [target, true_dom] = [e.target, element_dom]
+			if (/\b(cell|action|spell)\b/.test(element_dom)) [target, true_dom] = [e.target, element_dom]
 			if (element_dom === 'cell_svg') [target, true_dom] = [e.target.parentElement, 'cell']
 			if (element_dom === 'cell_path') [target, true_dom] = [e.target.parentElement.parentElement, 'cell']
-			if (element_dom === 'ability_img') [target, true_dom] = [e.target.parentElement, 'ability']
+			if (element_dom === 'spell_img') [target, true_dom] = [e.target.parentElement, 'spell']
 
-			console.log(get_data.dom(target))
-
-			get_elements.query(`[data-active="true"][data-dom="${true_dom}"]`).forEach(deactivate)
-			activate(target)
+			handle_click(target, true_dom)
 		})
 	})
 }
@@ -108,7 +109,7 @@ function set_settings_events() {
 	const cells = get_cells()
 
 	const inputs = Array.from(document.querySelectorAll('input'))
-	const confirm_settings = document.querySelector('.close-modal')
+	const confirm_settings = document.querySelector('.submit-settings')
 	confirm_settings.addEventListener('click', () => {
 		const foo = (color) =>
 			inputs
@@ -126,20 +127,20 @@ function set_settings_events() {
 
 function reset_data_attributes() {
 	//* Active States
-	;['controller', 'ability', 'action', 'cell'].forEach((ec) => get_elements.data_dom(ec).forEach(deactivate))
+	;['controller', 'spell', 'action', 'cell'].forEach((ec) => get_elements.dom(ec).forEach(deactivate))
 
 	//* Which Player
 	;['green', 'blue'].forEach((c) => {
 		get_elements
-			.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="ability"],[data-dom="action"])`)
+			.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="spell"],[data-dom="action"])`)
 			.forEach((e) => (e.dataset.player = c))
 	})
 
 	//* Ability Charges
-	get_elements.data_dom('ability').forEach((e) => {
+	get_elements.dom('spell').forEach((e) => {
 		const type = e.dataset.type.replaceAll('-', '_').toUpperCase()
-		set_data(e, 'charge', random.int(ABILITY_MAX_CHARGE[type]))
-		set_data(e, 'maxCharge', ABILITY_MAX_CHARGE[type])
+		set_data(e, 'charge', random.int(SPELL_MAX_CHARGE[type]))
+		set_data(e, 'maxCharge', SPELL_MAX_CHARGE[type])
 	})
 }
 //#endregion
@@ -158,7 +159,7 @@ function remove_elemental(cell) {
 }
 
 function get_cells(type) {
-	const cells_raw = get_elements.data_dom('cell')
+	const cells_raw = get_elements.dom('cell')
 	const cells = new Array(12).fill().map((_, i) => new Array(12).fill().map((_, j) => cells_raw[j + i * 12]))
 	if (type === 'green') return cells.slice(0, 6)
 	if (type === 'blue') return cells.slice(6, 12)
@@ -177,9 +178,7 @@ function generate_cells(cells, elements) {
 			const cell = random.array(
 				cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.player === col),
 			)
-			const elemental = Elemental.random(random.array(elements[col])).bind(cell)
-			if (random.float() < 0.5) elemental.health = random.int(1, MAX_HEALTH[elemental.level - 1] + 1)
-			if (random.float() < 0.5) elemental.hit = random.int(elemental.health + 1)
+			const elemental = new Elemental(random.array(elements[col]), 1).bind(cell)
 			insert_elemental(elemental.data)
 		})
 	}
@@ -192,32 +191,77 @@ function deactivate(element) {
 	element.dataset.active = false
 }
 
-//TODO
 function merge_cells(old_cells) {
 	const new_cells = new Array(12).fill().map(() => new Array(12).fill())
-	// exclude the edges, as they cannot be leveled up
-	for (let i = 1; i < 3; i++) {
-		for (let j = 1; j < 3; j++) {
-			// i+0,j+0 i+1,j+0 i+1,j+0   i+0,j+1 i+1,j+1 i+1,j+1   i+0,j+2 i+1,j+2 i+1,j+2
-			const cells_to_check = cells.slice(i - 1, i + 2).map((row) => row.slice(j - 1, j + 2))
-			console.log(cells_to_check)
+	for (let y = 1; y < 11; y++) {
+		for (let x = 1; x < 11; x++) {
+			if (y === 5 || y === 6) continue
+			const cells_to_check = old_cells
+				.slice(y - 1, y + 2)
+				.map((row) => row.slice(x - 1, x + 2))
+				.flat()
+			const result = check_merge(cells_to_check)
+			if (result.length === 0) continue
+
+			result.forEach((config) => {
+				// remove_elemental(cells_to_check[config[0]])
+				// remove_elemental(cells_to_check[config[2]])
+				activate(cells_to_check[config[1]])
+				// console.dir(cells_to_check[config[1]])
+			})
+		}
+	}
+}
+
+function check_merge(cells) {
+	const elements = cells.map((cell) => get_data(cell).element ?? null)
+	const levels = cells.map((cell) => get_data(cell).level ?? null)
+	const configurations = [
+		[0, 1, 2],
+		[3, 4, 5],
+		[6, 7, 8],
+		[0, 3, 6],
+		[1, 4, 7],
+		[2, 5, 8],
+		[0, 4, 8],
+		[2, 4, 6],
+	]
+	const result = configurations.filter((config) => {
+		const config_elements = config.map((i) => elements[i])
+		const config_levels = config.map((i) => levels[i])
+		return allEqualNotNull(config_elements) && allEqualNotNull(config_levels)
+	})
+	return result
+}
+
+function handle_click(target) {
+	const target_dom = get_data(target).dom
+	get_elements.query(`[data-active="true"][data-dom="${target_dom}"]`).forEach(deactivate)
+	activate(target)
+
+	// console.dir(target.dataset)
+	if (target_dom === 'action') {
+		const action_type = get_data(target).type
+		if (action_type === 'confirm') {
+			merge_cells(get_cells())
 		}
 	}
 }
 //#endregion
 
 //#region //* Helpers
-const get_data = {
-	dom: (e) => e.dataset.dom,
-	player: (e) => e.dataset.player,
-	type: (e) => e.dataset.type,
-	occupied: (e) => e.dataset.occupied,
-	active: (e) => e.dataset.active,
-}
+
 const get_elements = {
-	data_dom: (query) => Array.from(document.querySelectorAll(`[data-dom="${query}"]`)),
+	dom: (query) => Array.from(document.querySelectorAll(`[data-dom="${query}"]`)),
 	data: (data, query) => Array.from(document.querySelectorAll(`[data-${data}="${query}"]`)),
 	query: (query) => Array.from(document.querySelectorAll(`${query}`)),
+}
+function get_data(element) {
+	return JSON.parse(JSON.stringify(element.dataset))
+}
+
+function allEqualNotNull(array) {
+	return array.every((v) => v === array[0] && v !== null)
 }
 
 function set_data(element, type, data) {

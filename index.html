@@ -20,38 +20,20 @@
 	<body>
 		<div data-dom="modal-container">
 			<i class="fa-solid fa-bars open-modal"></i>
+			<i class="fa-solid fa-xmark close-modal"></i>
 
-			<div class="modal">
+			<div class="modal" data-active="false">
 				<div class="modal-content">
-					<i class="fa-solid fa-xmark close-modal"></i>
-
 					<div class="tab-buttons">
-						<i class="fa-solid fa-gear tab-button" data-name="settings" data-active="false"></i>
-						<i class="fa-solid fa-question tab-button" data-name="info" data-active="true"></i>
+						<i class="fa-solid fa-gear tab-button" data-name="settings" data-active="true"></i>
+						<i class="fa-solid fa-question tab-button" data-name="info" data-active="false"></i>
 					</div>
 
 					<div class="tab-contents">
-						<div class="tab-content" data-name="settings" data-active="false">
+						<div class="tab-content" data-name="settings" data-active="true">
 							<h1>SETTINGS</h1>
 
 							<form id="element-selector">
-								<fieldset data-player="green">
-									<legend>Player Green</legend>
-									<div class="input-wrapper">
-										<input type="checkbox" id="air-green" value="air" data-type="air" />
-										<label for="air-green">Air</label>
-										<input type="checkbox" id="fire-green" value="fire" data-type="fire" />
-										<label for="fire-green">Fire</label>
-										<input type="checkbox" id="rock-green" value="rock" data-type="rock" />
-										<label for="rock-green">Rock</label>
-										<input type="checkbox" id="water-green" value="water" data-type="water" />
-										<label for="water-green">Water</label>
-										<input type="checkbox" id="nature-green" value="nature" data-type="nature" />
-										<label for="nature-green">Nature</label>
-										<input type="checkbox" id="energy-green" value="energy" data-type="energy" />
-										<label for="energy-green">Energy</label>
-									</div>
-								</fieldset>
 								<fieldset data-player="blue">
 									<legend>Player Blue</legend>
 									<div class="input-wrapper">
@@ -69,11 +51,28 @@
 										<label for="energy-blue">Energy</label>
 									</div>
 								</fieldset>
+								<fieldset data-player="green">
+									<legend>Player Green</legend>
+									<div class="input-wrapper">
+										<input type="checkbox" id="air-green" value="air" data-type="air" />
+										<label for="air-green">Air</label>
+										<input type="checkbox" id="fire-green" value="fire" data-type="fire" />
+										<label for="fire-green">Fire</label>
+										<input type="checkbox" id="rock-green" value="rock" data-type="rock" />
+										<label for="rock-green">Rock</label>
+										<input type="checkbox" id="water-green" value="water" data-type="water" />
+										<label for="water-green">Water</label>
+										<input type="checkbox" id="nature-green" value="nature" data-type="nature" />
+										<label for="nature-green">Nature</label>
+										<input type="checkbox" id="energy-green" value="energy" data-type="energy" />
+										<label for="energy-green">Energy</label>
+									</div>
+								</fieldset>
 							</form>
 
 							<i class="fa-solid fa-check submit-settings"></i>
 						</div>
-						<div class="tab-content" data-name="info" data-active="true">
+						<div class="tab-content" data-name="info" data-active="false">
 							<h1>INFO</h1>
 							<p>Mission: destroy all enemy elementals.</p>
 							<p>
@@ -133,50 +132,50 @@
 		</div>
 
 		<div data-dom="game-container">
-			<div data-dom="controller" data-player="green">
+			<div data-dom="controller" data-player="blue">
 				<div class="action-selector">
 					<i class="fa-solid fa-check" data-dom="action" data-type="confirm"></i>
 					<i class="fa-solid fa-forward" data-dom="action" data-type="skip"></i>
 					<i class="fa-solid fa-up-down-left-right" data-dom="action" data-type="move"></i>
 					<i class="fa-solid fa-swords" data-dom="action" data-type="attack"></i>
 				</div>
-				<div class="ability-selector">
-					<div data-dom="ability" data-type="meteor-shower">
-						<img data-dom="ability_img" src="images/meteor.png" alt="" />
+				<div class="spell-selector">
+					<div data-dom="spell" data-type="meteor-shower">
+						<img data-dom="spell_img" src="images/meteor.png" alt="" />
 					</div>
-					<div data-dom="ability" data-type="pendulum-of-reversed-time">
-						<img data-dom="ability_img" src="images/boot.png" alt="" />
+					<div data-dom="spell" data-type="pendulum-of-reversed-time">
+						<img data-dom="spell_img" src="images/boot.png" alt="" />
 					</div>
-					<div data-dom="ability" data-type="ancient-figurine">
-						<img data-dom="ability_img" src="images/pyramid.png" alt="" />
+					<div data-dom="spell" data-type="ancient-figurine">
+						<img data-dom="spell_img" src="images/pyramid.png" alt="" />
 					</div>
-					<div data-dom="ability" data-type="the-lady-of-the-lake-vial">
-						<img data-dom="ability_img" src="images/heal.png" alt="" />
+					<div data-dom="spell" data-type="the-lady-of-the-lake-vial">
+						<img data-dom="spell_img" src="images/heal.png" alt="" />
 					</div>
-					<div data-dom="ability" data-type="forest-master-staff">
-						<img data-dom="ability_img" src="images/thorn.png" alt="" />
+					<div data-dom="spell" data-type="forest-master-staff">
+						<img data-dom="spell_img" src="images/thorn.png" alt="" />
 					</div>
 				</div>
 			</div>
 
 			<div data-dom="board"></div>
 
-			<div data-dom="controller" data-player="blue">
-				<div class="ability-selector">
-					<div data-dom="ability" data-type="forest-master-staff">
-						<img data-dom="ability_img" src="images/thorn.png" alt="" />
+			<div data-dom="controller" data-player="green">
+				<div class="spell-selector">
+					<div data-dom="spell" data-type="forest-master-staff">
+						<img data-dom="spell_img" src="images/thorn.png" alt="" />
 					</div>
-					<div data-dom="ability" data-type="the-lady-of-the-lake-vial">
-						<img data-dom="ability_img" src="images/heal.png" alt="" />
+					<div data-dom="spell" data-type="the-lady-of-the-lake-vial">
+						<img data-dom="spell_img" src="images/heal.png" alt="" />
 					</div>
-					<div data-dom="ability" data-type="ancient-figurine">
-						<img data-dom="ability_img" src="images/pyramid.png" alt="" />
+					<div data-dom="spell" data-type="ancient-figurine">
+						<img data-dom="spell_img" src="images/pyramid.png" alt="" />
 					</div>
-					<div data-dom="ability" data-type="pendulum-of-reversed-time">
-						<img data-dom="ability_img" src="images/boot.png" alt="" />
+					<div data-dom="spell" data-type="pendulum-of-reversed-time">
+						<img data-dom="spell_img" src="images/boot.png" alt="" />
 					</div>
-					<div data-dom="ability" data-type="meteor-shower">
-						<img data-dom="ability_img" src="images/meteor.png" alt="" />
+					<div data-dom="spell" data-type="meteor-shower">
+						<img data-dom="spell_img" src="images/meteor.png" alt="" />
 					</div>
 				</div>
 				<div class="action-selector">
