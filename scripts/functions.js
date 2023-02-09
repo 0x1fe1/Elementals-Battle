@@ -122,6 +122,7 @@ function set_settings_events() {
 
 		clear_cells(cells)
 		generate_cells(cells, elements)
+		get_elements.query('.close-modal')[0].click()
 	})
 }
 
@@ -155,7 +156,11 @@ function insert_elemental({ cell, element, level = 1, health = 1, hit = 0 }) {
 }
 
 function remove_elemental(cell) {
-	cell.dataset['occupied'] = 'false'
+	cell.dataset.occupied = 'false'
+	cell.dataset.element = null
+	cell.dataset.level = null
+	cell.dataset.health = null
+	cell.dataset.hit = null
 }
 
 function get_cells(type) {
@@ -188,13 +193,16 @@ function activate(element) {
 	element.dataset.active = true
 }
 function deactivate(element) {
-	element.dataset.active = false
+	if (Array.isArray(element)) element.forEach(deactivate)
+	else set_data(element, 'active', false)
 }
 
-function merge_cells(old_cells) {
+function merge_cells(old_cells, player) {
 	const new_cells = new Array(12).fill().map(() => new Array(12).fill())
-	for (let y = 1; y < 11; y++) {
-		for (let x = 1; x < 11; x++) {
+	const [sy, ey] = player === 'blue' ? [1, 5] : [7, 11]
+	const [sx, ex] = [1, 11]
+	for (let y = sy; y < ey; y++) {
+		for (let x = sx; x < ex; x++) {
 			if (y === 5 || y === 6) continue
 			const cells_to_check = old_cells
 				.slice(y - 1, y + 2)
@@ -214,6 +222,7 @@ function merge_cells(old_cells) {
 }
 
 function check_merge(cells) {
+	const occupieds = cells.map((cell) => get_data(cell).occupied ?? null)
 	const elements = cells.map((cell) => get_data(cell).element ?? null)
 	const levels = cells.map((cell) => get_data(cell).level ?? null)
 	const configurations = [
@@ -227,9 +236,10 @@ function check_merge(cells) {
 		[2, 4, 6],
 	]
 	const result = configurations.filter((config) => {
+		const config_occupieds = config.map((i) => occupieds[i]).filter((e) => e !== false)
 		const config_elements = config.map((i) => elements[i])
 		const config_levels = config.map((i) => levels[i])
-		return allEqualNotNull(config_elements) && allEqualNotNull(config_levels)
+		return allEqualNotNull(config_occupieds) && allEqualNotNull(config_elements) && allEqualNotNull(config_levels)
 	})
 	return result
 }
@@ -242,8 +252,9 @@ function handle_click(target) {
 	// console.dir(target.dataset)
 	if (target_dom === 'action') {
 		const action_type = get_data(target).type
-		if (action_type === 'confirm') {
-			merge_cells(get_cells())
+		if (action_type === 'skip') {
+			deactivate(get_elements.dom_active('cell'))
+			merge_cells(get_cells(), get_data(target).player)
 		}
 	}
 }
@@ -253,6 +264,7 @@ function handle_click(target) {
 
 const get_elements = {
 	dom: (query) => Array.from(document.querySelectorAll(`[data-dom="${query}"]`)),
+	dom_active: (query) => Array.from(document.querySelectorAll(`[data-active="true"][data-dom="${query}"]`)),
 	data: (data, query) => Array.from(document.querySelectorAll(`[data-${data}="${query}"]`)),
 	query: (query) => Array.from(document.querySelectorAll(`${query}`)),
 }
@@ -260,12 +272,12 @@ function get_data(element) {
 	return JSON.parse(JSON.stringify(element.dataset))
 }
 
-function allEqualNotNull(array) {
-	return array.every((v) => v === array[0] && v !== null)
-}
-
 function set_data(element, type, data) {
 	element.dataset[type] = data
+}
+
+function allEqualNotNull(array) {
+	return array.every((v) => v === array[0] && v !== null && v !== 'null')
 }
 
 function debug_display_variants(element) {

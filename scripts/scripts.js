@@ -17,4 +17,4 @@ generate_cells(cells, {
 })
 // debug_display_variants(ELEMENTS.AIR)
 
-get_elements.query('[data-player="green"][data-dom="action"]')[0].addEventListener('click', () => {})
+// get_elements.query('[data-player="green"][data-dom="action"]')[0].addEventListener('click', () => {})
