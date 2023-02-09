@@ -94,10 +94,10 @@ i {
 	background: var(--cell-blue);
 }
 [data-dom='cell'][data-shade='light']:before {
-	filter: brightness(120%);
+	filter: brightness(120%) contrast(80%);
 }
 [data-dom='cell'][data-shade='dark']:before {
-	filter: brightness(90%);
+	filter: brightness(90%) contrast(80%);
 }
 
 [data-dom='controller'] {
@@ -197,13 +197,13 @@ i {
 }
 
 :is([data-dom='cell'], [data-dom='spell'], [data-dom='action'])[data-active='true'] {
-	filter: brightness(120%);
-	scale: 1.2;
+	filter: brightness(120%) drop-shadow(0 0 calc(2 * var(--vmin)) var(--gray-900));
+	scale: 1.1;
 	z-index: 10;
-	border-radius: calc(2 * var(--vmin));
+	border-radius: var(--vmin);
 }
 :is([data-dom='cell'], [data-dom='spell'], [data-dom='action']):hover {
-	filter: brightness(120%);
+	filter: brightness(120%) drop-shadow(0 0 calc(2 * var(--vmin)) var(--gray-900));
 	z-index: 10;
 }
 
@@ -249,32 +249,45 @@ i {
 
 	left: calc(1 * var(--vmin));
 	z-index: 40;
-
-	transition: 200ms;
 }
+
+:is(.open-modal, .close-modal),
+:is(.open-modal, .close-modal)::before {
+	transition: 500ms;
+}
+
 [data-dom='modal-container']:has(.modal[data-active='false']) .open-modal {
 	visibility: visible;
 	opacity: 1;
-	scale: 1;
-	rotate: 0deg;
-}
-[data-dom='modal-container']:has(.modal[data-active='true']) .close-modal {
-	visibility: visible;
-	opacity: 1;
-	scale: 1;
-	rotate: 0deg;
 }
 [data-dom='modal-container']:has(.modal[data-active='false']) .close-modal {
 	visibility: hidden;
 	opacity: 0;
-	scale: 0;
-	rotate: 180deg;
 }
 [data-dom='modal-container']:has(.modal[data-active='true']) .open-modal {
 	visibility: hidden;
 	opacity: 0;
+}
+[data-dom='modal-container']:has(.modal[data-active='true']) .close-modal {
+	visibility: visible;
+	opacity: 1;
+}
+
+[data-dom='modal-container']:has(.modal[data-active='false']) .open-modal::before {
+	rotate: 0deg;
+	scale: 1;
+}
+[data-dom='modal-container']:has(.modal[data-active='false']) .close-modal::before {
+	rotate: 180deg;
 	scale: 0;
+}
+[data-dom='modal-container']:has(.modal[data-active='true']) .open-modal::before {
 	rotate: -180deg;
+	scale: 0;
+}
+[data-dom='modal-container']:has(.modal[data-active='true']) .close-modal::before {
+	rotate: 0deg;
+	scale: 1;
 }
 
 .modal-content {
