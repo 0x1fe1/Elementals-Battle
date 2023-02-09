@@ -122,13 +122,17 @@ function set_settings_events() {
 
 		clear_cells(cells)
 		generate_cells(cells, elements)
-		get_elements.query('.close-modal')[0].click()
+		setTimeout(() => {
+			get_elements.query('.close-modal')[0].click()
+		}, 300)
 	})
 }
 
 function reset_data_attributes() {
 	//* Active States
-	;['controller', 'spell', 'action', 'cell'].forEach((ec) => get_elements.dom(ec).forEach(deactivate))
+	;['controller', 'spell', 'action', 'cell'].forEach((ec) =>
+		get_elements.dom(ec).forEach((e) => toggle_active(e, true)),
+	)
 
 	//* Which Player
 	;['green', 'blue'].forEach((c) => {
@@ -189,14 +193,6 @@ function generate_cells(cells, elements) {
 	}
 }
 
-function activate(element) {
-	element.dataset.active = true
-}
-function deactivate(element) {
-	if (Array.isArray(element)) element.forEach(deactivate)
-	else set_data(element, 'active', false)
-}
-
 function merge_cells(old_cells, player) {
 	const new_cells = new Array(12).fill().map(() => new Array(12).fill())
 	const [sy, ey] = player === 'blue' ? [1, 5] : [7, 11]
@@ -214,7 +210,7 @@ function merge_cells(old_cells, player) {
 			result.forEach((config) => {
 				// remove_elemental(cells_to_check[config[0]])
 				// remove_elemental(cells_to_check[config[2]])
-				activate(cells_to_check[config[1]])
+				toggle_active(cells_to_check[config[1]], true)
 				// console.dir(cells_to_check[config[1]])
 			})
 		}
@@ -246,14 +242,14 @@ function check_merge(cells) {
 
 function handle_click(target) {
 	const target_dom = get_data(target).dom
-	get_elements.query(`[data-active="true"][data-dom="${target_dom}"]`).forEach(deactivate)
-	activate(target)
+	get_elements.dom_active(target_dom).forEach((el) => toggle_active(el, false))
+	toggle_active(target, true)
 
 	// console.dir(target.dataset)
 	if (target_dom === 'action') {
 		const action_type = get_data(target).type
 		if (action_type === 'skip') {
-			deactivate(get_elements.dom_active('cell'))
+			toggle_active(get_elements.dom_active('cell'), false)
 			merge_cells(get_cells(), get_data(target).player)
 		}
 	}
@@ -261,12 +257,24 @@ function handle_click(target) {
 //#endregion
 
 //#region //* Helpers
+function toggle_active(element, active) {
+	if (Array.isArray(element)) element.forEach((el) => toggle_active(el, active))
+	else set_data(element, 'active', active)
+}
 
 const get_elements = {
 	dom: (query) => Array.from(document.querySelectorAll(`[data-dom="${query}"]`)),
 	dom_active: (query) => Array.from(document.querySelectorAll(`[data-active="true"][data-dom="${query}"]`)),
-	data: (data, query) => Array.from(document.querySelectorAll(`[data-${data}="${query}"]`)),
-	query: (query) => Array.from(document.querySelectorAll(`${query}`)),
+	data: (key, value) => Array.from(document.querySelectorAll(`[data-${key}="${value}"]`)),
+	query: (query) => Array.from(document.querySelectorAll(query)),
+	data_n: (queries) =>
+		Array.from(
+			document.querySelectorAll(
+				Object.entries(queries)
+					.map(([key, value]) => `[data-${key}="${value}"]`)
+					.join(''),
+			),
+		),
 }
 function get_data(element) {
 	return JSON.parse(JSON.stringify(element.dataset))

@@ -659,7 +659,7 @@ circle.elemental-health-boundary {
 }
 
 /* !   hit fuckery   */
-.elemental-health-hit {
+[data-dom='cell'] .elemental-health-hit {
 	fill: var(--elemental-health-hit);
 	stroke: none;
 }
