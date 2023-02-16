@@ -197,8 +197,18 @@ i {
 }
 
 :is([data-dom='cell'], [data-dom='spell'], [data-dom='action'])[data-active='true'] {
+<<<<<<< HEAD
 	filter: brightness(120%) drop-shadow(0 0 var(--vmin) var(--gray-900));
 	scale: 1.15;
+=======
+	filter: brightness(120%) drop-shadow(0 0 calc(2 * var(--vmin)) var(--gray-900));
+	scale: 1.1;
+	z-index: 10;
+	border-radius: var(--vmin);
+}
+:is([data-dom='cell'], [data-dom='spell'], [data-dom='action']):hover {
+	filter: brightness(120%) drop-shadow(0 0 calc(2 * var(--vmin)) var(--gray-900));
+>>>>>>> 99ac7d93b9a13032c940ff8c7ea20343b0c49e70
 	z-index: 10;
 	border-radius: var(--vmin);
 	transition: 100ms;
@@ -660,7 +670,7 @@ circle.elemental-health-boundary {
 }
 
 /* !   hit fuckery   */
-.elemental-health-hit {
+[data-dom='cell'] .elemental-health-hit {
 	fill: var(--elemental-health-hit);
 	stroke: none;
 }
