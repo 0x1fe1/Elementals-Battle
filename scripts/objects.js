@@ -43,6 +43,10 @@ class Elemental {
 		return new Elemental(element, level)
 	}
 
+	static from_cell(cell) {
+		return new Elemental(get_data(cell).element, get_data(cell).level).bind(cell)
+	}
+
 	constructor(element, level) {
 		this.element = element
 		this.level = level
@@ -60,7 +64,7 @@ class Elemental {
 	}
 
 	upgrade() {
-		return new Elemental(this.element, min(this.level + 1, LEVELS[LEVELS.length - 1]))
+		return new Elemental(this.element, Math.min(this.level + 1, LEVELS[LEVELS.length - 1]))
 	}
 
 	get data() {

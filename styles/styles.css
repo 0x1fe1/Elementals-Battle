@@ -197,14 +197,11 @@ i {
 }
 
 :is([data-dom='cell'], [data-dom='spell'], [data-dom='action'])[data-active='true'] {
-	filter: brightness(120%) drop-shadow(0 0 calc(2 * var(--vmin)) var(--gray-900));
-	scale: 1.1;
+	filter: brightness(120%) drop-shadow(0 0 var(--vmin) var(--gray-900));
+	scale: 1.15;
 	z-index: 10;
 	border-radius: var(--vmin);
-}
-:is([data-dom='cell'], [data-dom='spell'], [data-dom='action']):hover {
-	filter: brightness(120%) drop-shadow(0 0 calc(2 * var(--vmin)) var(--gray-900));
-	z-index: 10;
+	transition: 100ms;
 }
 
 /*   modal fuckery   */
@@ -552,10 +549,14 @@ p.spell.meteor-shower::first-line {
 svg {
 	overflow: hidden;
 	position: absolute;
+	transition: 500ms;
 }
 
-[data-dom='cell'][data-occupied='false'] svg {
-	display: none;
+[data-dom='cell'][data-occupied='true'] > svg {
+	opacity: 1;
+}
+[data-dom='cell'][data-occupied='false'] > svg {
+	opacity: 0;
 }
 
 .elemental {

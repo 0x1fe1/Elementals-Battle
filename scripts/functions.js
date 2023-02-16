@@ -21,7 +21,7 @@ function insert_default_cells(board) {
 	for (let i = 0; i < 12; i++) {
 		for (let j = 0; j < 12; j++) {
 			board.innerHTML += `
-            <div data-dom="cell" data-occupied="false" 
+            <div data-dom="cell" data-occupied="false" data-x="${j}" data-y="${i}"
                 data-player="${i < 6 ? 'blue' : 'green'}"
                 data-shade="${i % 2 === j % 2 ? 'light' : 'dark'}">
                 <svg class="elemental" viewbox="0 0 100 100" data-dom="cell_svg">
@@ -197,28 +197,37 @@ function deactivate(element) {
 	else set_data(element, 'active', false)
 }
 
+function update_cells(new_cells) {}
+
 function merge_cells(old_cells, player) {
-	const new_cells = new Array(12).fill().map(() => new Array(12).fill())
+	const new_cells = old_cells //new Array(12).fill().map(() => new Array(12).fill())
 	const [sy, ey] = player === 'blue' ? [1, 5] : [7, 11]
 	const [sx, ex] = [1, 11]
+	const cells_to_remove = []
+
 	for (let y = sy; y < ey; y++) {
 		for (let x = sx; x < ex; x++) {
 			if (y === 5 || y === 6) continue
-			const cells_to_check = old_cells
+			const cells_check = old_cells
 				.slice(y - 1, y + 2)
 				.map((row) => row.slice(x - 1, x + 2))
 				.flat()
-			const result = check_merge(cells_to_check)
+			const result = check_merge(cells_check)
 			if (result.length === 0) continue
 
 			result.forEach((config) => {
-				// remove_elemental(cells_to_check[config[0]])
-				// remove_elemental(cells_to_check[config[2]])
-				activate(cells_to_check[config[1]])
-				// console.dir(cells_to_check[config[1]])
+				cells_to_remove.push({ x: get_data(cells_check[config[0]]).x, y: get_data(cells_check[config[0]]).y })
+				cells_to_remove.push({ x: get_data(cells_check[config[2]]).x, y: get_data(cells_check[config[2]]).y })
+
+				const cell_upgrade = new_cells[get_data(cells_check[config[1]]).y][get_data(cells_check[config[1]]).x]
+				const new_elemental = Elemental.from_cell(cell_upgrade).upgrade()
+
+				insert_elemental({ cell: cell_upgrade, ...new_elemental })
 			})
 		}
 	}
+
+	cells_to_remove.forEach((pos) => remove_elemental(new_cells[pos.y][pos.x]))
 }
 
 function check_merge(cells) {
