@@ -122,17 +122,13 @@ function set_settings_events() {
 
 		clear_cells(cells)
 		generate_cells(cells, elements)
-		setTimeout(() => {
-			get_elements.query('.close-modal')[0].click()
-		}, 300)
+		get_elements.query('.close-modal')[0].click()
 	})
 }
 
 function reset_data_attributes() {
 	//* Active States
-	;['controller', 'spell', 'action', 'cell'].forEach((ec) =>
-		get_elements.dom(ec).forEach((e) => toggle_active(e, true)),
-	)
+	;['controller', 'spell', 'action', 'cell'].forEach((ec) => get_elements.dom(ec).forEach(deactivate))
 
 	//* Which Player
 	;['green', 'blue'].forEach((c) => {
@@ -193,10 +189,22 @@ function generate_cells(cells, elements) {
 	}
 }
 
+function activate(element) {
+	element.dataset.active = true
+}
+function deactivate(element) {
+	if (Array.isArray(element)) element.forEach(deactivate)
+	else set_data(element, 'active', false)
+}
+
+function update_cells(new_cells) {}
+
 function merge_cells(old_cells, player) {
-	const new_cells = new Array(12).fill().map(() => new Array(12).fill())
+	const new_cells = old_cells //new Array(12).fill().map(() => new Array(12).fill())
 	const [sy, ey] = player === 'blue' ? [1, 5] : [7, 11]
 	const [sx, ex] = [1, 11]
+	const cells_to_remove = []
+
 	for (let y = sy; y < ey; y++) {
 		for (let x = sx; x < ex; x++) {
 			if (y === 5 || y === 6) continue
@@ -208,10 +216,13 @@ function merge_cells(old_cells, player) {
 			if (result.length === 0) continue
 
 			result.forEach((config) => {
-				// remove_elemental(cells_to_check[config[0]])
-				// remove_elemental(cells_to_check[config[2]])
-				toggle_active(cells_to_check[config[1]], true)
-				// console.dir(cells_to_check[config[1]])
+				cells_to_remove.push({ x: get_data(cells_check[config[0]]).x, y: get_data(cells_check[config[0]]).y })
+				cells_to_remove.push({ x: get_data(cells_check[config[2]]).x, y: get_data(cells_check[config[2]]).y })
+
+				const cell_upgrade = new_cells[get_data(cells_check[config[1]]).y][get_data(cells_check[config[1]]).x]
+				const new_elemental = Elemental.from_cell(cell_upgrade).upgrade()
+
+				insert_elemental({ cell: cell_upgrade, ...new_elemental })
 			})
 		}
 	}
@@ -244,14 +255,14 @@ function check_merge(cells) {
 
 function handle_click(target) {
 	const target_dom = get_data(target).dom
-	get_elements.dom_active(target_dom).forEach((el) => toggle_active(el, false))
-	toggle_active(target, true)
+	get_elements.query(`[data-active="true"][data-dom="${target_dom}"]`).forEach(deactivate)
+	activate(target)
 
 	// console.dir(target.dataset)
 	if (target_dom === 'action') {
 		const action_type = get_data(target).type
 		if (action_type === 'skip') {
-			toggle_active(get_elements.dom_active('cell'), false)
+			deactivate(get_elements.dom_active('cell'))
 			merge_cells(get_cells(), get_data(target).player)
 		}
 	}
@@ -259,24 +270,12 @@ function handle_click(target) {
 //#endregion
 
 //#region //* Helpers
-function toggle_active(element, active) {
-	if (Array.isArray(element)) element.forEach((el) => toggle_active(el, active))
-	else set_data(element, 'active', active)
-}
 
 const get_elements = {
 	dom: (query) => Array.from(document.querySelectorAll(`[data-dom="${query}"]`)),
 	dom_active: (query) => Array.from(document.querySelectorAll(`[data-active="true"][data-dom="${query}"]`)),
-	data: (key, value) => Array.from(document.querySelectorAll(`[data-${key}="${value}"]`)),
-	query: (query) => Array.from(document.querySelectorAll(query)),
-	data_n: (queries) =>
-		Array.from(
-			document.querySelectorAll(
-				Object.entries(queries)
-					.map(([key, value]) => `[data-${key}="${value}"]`)
-					.join(''),
-			),
-		),
+	data: (data, query) => Array.from(document.querySelectorAll(`[data-${data}="${query}"]`)),
+	query: (query) => Array.from(document.querySelectorAll(`${query}`)),
 }
 function get_data(element) {
 	return JSON.parse(JSON.stringify(element.dataset))
