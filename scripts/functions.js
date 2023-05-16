@@ -5,7 +5,6 @@ function setup() {
 	insert_gradients(document.querySelector('.gradients'))
 	reset_data_attributes()
 	set_modal_events()
-	set_cell_spell_action_events()
 	set_settings_events()
 
 	// get_elements.query('.open-modal')[0].click()
@@ -72,39 +71,6 @@ function set_modal_events() {
 	})
 }
 
-function set_cell_spell_action_events() {
-	const cells_dom = get_elements.dom('cell')
-	const actions_dom = get_elements.dom('action')
-	const abilities_dom = get_elements.dom('spell')
-
-	;[...cells_dom, ...actions_dom, ...abilities_dom].forEach((element) => {
-		let last_pointerId = 0,
-			has_moved = false
-		element.addEventListener('pointerdown', (e) => {
-			last_pointerId = e.pointerId
-		})
-		element.addEventListener('pointermove', (e) => {
-			if (e.pointerType === 'mouse') return
-			has_moved = true
-		})
-		element.addEventListener('pointerup', (e) => {
-			if (last_pointerId !== e.pointerId) return
-			if (has_moved) return (has_moved = false)
-
-			const element_dom = get_data(e.target).dom
-			if (!/cell|action|spell/.test(element_dom)) return console.error(element_dom, e)
-
-			let target, true_dom
-			if (/\b(cell|action|spell)\b/.test(element_dom)) [target, true_dom] = [e.target, element_dom]
-			if (element_dom === 'cell_svg') [target, true_dom] = [e.target.parentElement, 'cell']
-			if (element_dom === 'cell_path') [target, true_dom] = [e.target.parentElement.parentElement, 'cell']
-			if (element_dom === 'spell_img') [target, true_dom] = [e.target.parentElement, 'spell']
-
-			handle_click(target, true_dom)
-		})
-	})
-}
-
 function set_settings_events() {
 	const cells = get_cells()
 
@@ -128,16 +94,14 @@ function set_settings_events() {
 
 function reset_data_attributes() {
 	//* Active States
-	;['controller', 'spell', 'action', 'cell'].forEach((ec) => get_elements.dom(ec).forEach(deactivate))
+	;['controller', 'spell', 'action', 'cell'].forEach((ec) => get_elements.dom(ec).forEach((e) => toggle_active(e, false)))
 
 	//* Which Player
 	;['green', 'blue'].forEach((c) => {
-		get_elements
-			.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="spell"],[data-dom="action"])`)
-			.forEach((e) => (e.dataset.player = c))
+		get_elements.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="spell"],[data-dom="action"])`).forEach((e) => (e.dataset.player = c))
 	})
 
-	//* Ability Charges
+	//* spell Charges
 	get_elements.dom('spell').forEach((e) => {
 		const type = e.dataset.type.replaceAll('-', '_').toUpperCase()
 		set_data(e, 'charge', random.int(SPELL_MAX_CHARGE[type]))
@@ -165,108 +129,39 @@ function remove_elemental(cell) {
 
 function get_cells(type) {
 	const cells_raw = get_elements.dom('cell')
-	const cells = new Array(12).fill().map((_, i) => new Array(12).fill().map((_, j) => cells_raw[j + i * 12]))
-	if (type === 'green') return cells.slice(0, 6)
-	if (type === 'blue') return cells.slice(6, 12)
-	return cells
+	// const cells = new Array(12).fill().map((_, i) => new Array(12).fill().map((_, j) => cells_raw[j + i * 12]))
+	if (type === 'green') return cells_raw.slice(0, 72)
+	if (type === 'blue') return cells_raw.slice(72, 144)
+	return cells_raw
 }
 
 function clear_cells(cells) {
 	cells.flat().forEach((cell) => remove_elemental(cell))
 }
 
-function generate_cells(cells, elements) {
-	const num = 30 + random.sign() * 3
-	for (let i = 0; i < num; i++) {
-		;['green', 'blue'].forEach((col) => {
-			if (elements[col].length === 0) return
-			const cell = random.array(
-				cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.player === col),
-			)
-			const elemental = new Elemental(random.array(elements[col]), 1).bind(cell)
-			insert_elemental(elemental.data)
-		})
-	}
+function toggle_active(elements, forced_state) {
+	;[elements].flat().forEach((e) => set_data(e, 'active', forced_state ?? !e.dataset.active == 'true'))
 }
 
-function activate(element) {
-	element.dataset.active = true
+const handle_click = {
+	cell: () => {},
+	action: () => {},
+	spell: () => {},
 }
-function deactivate(element) {
-	if (Array.isArray(element)) element.forEach(deactivate)
-	else set_data(element, 'active', false)
-}
+// (target) {
+// 	const target_dom = get_data(target).dom
+// 	get_elements.query(`[data-active="true"][data-dom="${target_dom}"]`).forEach((e) => toggle_active(e, false))
+// 	toggle_active(target, true)
 
-function update_cells(new_cells) {}
-
-function merge_cells(old_cells, player) {
-	const new_cells = old_cells //new Array(12).fill().map(() => new Array(12).fill())
-	const [sy, ey] = player === 'blue' ? [1, 5] : [7, 11]
-	const [sx, ex] = [1, 11]
-	const cells_to_remove = []
-
-	for (let y = sy; y < ey; y++) {
-		for (let x = sx; x < ex; x++) {
-			if (y === 5 || y === 6) continue
-			const cells_check = old_cells
-				.slice(y - 1, y + 2)
-				.map((row) => row.slice(x - 1, x + 2))
-				.flat()
-			const result = check_merge(cells_check)
-			if (result.length === 0) continue
-
-			result.forEach((config) => {
-				cells_to_remove.push({ x: get_data(cells_check[config[0]]).x, y: get_data(cells_check[config[0]]).y })
-				cells_to_remove.push({ x: get_data(cells_check[config[2]]).x, y: get_data(cells_check[config[2]]).y })
-
-				const cell_upgrade = new_cells[get_data(cells_check[config[1]]).y][get_data(cells_check[config[1]]).x]
-				const new_elemental = Elemental.from_cell(cell_upgrade).upgrade()
-
-				insert_elemental({ cell: cell_upgrade, ...new_elemental })
-			})
-		}
-	}
-
-	cells_to_remove.forEach((pos) => remove_elemental(new_cells[pos.y][pos.x]))
-}
-
-function check_merge(cells) {
-	const occupieds = cells.map((cell) => get_data(cell).occupied ?? null)
-	const elements = cells.map((cell) => get_data(cell).element ?? null)
-	const levels = cells.map((cell) => get_data(cell).level ?? null)
-	const configurations = [
-		[0, 1, 2],
-		[3, 4, 5],
-		[6, 7, 8],
-		[0, 3, 6],
-		[1, 4, 7],
-		[2, 5, 8],
-		[0, 4, 8],
-		[2, 4, 6],
-	]
-	const result = configurations.filter((config) => {
-		const config_occupieds = config.map((i) => occupieds[i]).filter((e) => e !== false)
-		const config_elements = config.map((i) => elements[i])
-		const config_levels = config.map((i) => levels[i])
-		return allEqualNotNull(config_occupieds) && allEqualNotNull(config_elements) && allEqualNotNull(config_levels)
-	})
-	return result
-}
-
-function handle_click(target) {
-	const target_dom = get_data(target).dom
-	get_elements.query(`[data-active="true"][data-dom="${target_dom}"]`).forEach(deactivate)
-	activate(target)
-
-	// console.dir(target.dataset)
-	if (target_dom === 'action') {
-		const action_type = get_data(target).type
-		if (action_type === 'skip') {
-			deactivate(get_elements.dom_active('cell'))
-			merge_cells(get_cells(), get_data(target).player)
-		}
-	}
-}
+// 	// console.dir(target.dataset)
+// 	// if (target_dom === 'action') {
+// 	// 	const action_type = get_data(target).type
+// 	// 	if (action_type === 'skip') {
+// 	// 		toggle_active(get_elements.dom_active('cell'), false)
+// 	// 		merge_cells(get_cells(), get_data(target).player)
+// 	// 	}
+// 	// }
+// }
 //#endregion
 
 //#region //* Helpers
@@ -274,9 +169,12 @@ function handle_click(target) {
 const get_elements = {
 	dom: (query) => Array.from(document.querySelectorAll(`[data-dom="${query}"]`)),
 	dom_active: (query) => Array.from(document.querySelectorAll(`[data-active="true"][data-dom="${query}"]`)),
+	dom_player: (query, player) => Array.from(document.querySelectorAll(`[data-player="${player}"][data-dom="${query}"]`)),
 	data: (data, query) => Array.from(document.querySelectorAll(`[data-${data}="${query}"]`)),
 	query: (query) => Array.from(document.querySelectorAll(`${query}`)),
+	closest_dom: (element, dom) => element.closest(`[data-dom="${dom}"]`),
 }
+
 function get_data(element) {
 	return JSON.parse(JSON.stringify(element.dataset))
 }
@@ -289,47 +187,49 @@ function allEqualNotNull(array) {
 	return array.every((v) => v === array[0] && v !== null && v !== 'null')
 }
 
-function debug_display_variants(element) {
-	const cells = get_cells()
-	// level 1
-	insert_elemental({ cell: cells[0][0], element, level: 1, health: 1, hit: 0 })
-	insert_elemental({ cell: cells[1][0], element, level: 1, health: 1, hit: 1 })
+//#region debug_display_variants
+// function debug_display_variants(element) {
+// 	const cells = get_cells()
+// 	// level 1
+// 	insert_elemental({ cell: cells[0][0], element, level: 1, health: 1, hit: 0 })
+// 	insert_elemental({ cell: cells[1][0], element, level: 1, health: 1, hit: 1 })
 
-	// level 2
-	insert_elemental({ cell: cells[0][2], element, level: 2, health: 1, hit: 0 })
-	insert_elemental({ cell: cells[1][2], element, level: 2, health: 1, hit: 1 })
+// 	// level 2
+// 	insert_elemental({ cell: cells[0][2], element, level: 2, health: 1, hit: 0 })
+// 	insert_elemental({ cell: cells[1][2], element, level: 2, health: 1, hit: 1 })
 
-	insert_elemental({ cell: cells[3][2], element, level: 2, health: 2, hit: 0 })
-	insert_elemental({ cell: cells[4][2], element, level: 2, health: 2, hit: 1 })
-	insert_elemental({ cell: cells[5][2], element, level: 2, health: 2, hit: 2 })
+// 	insert_elemental({ cell: cells[3][2], element, level: 2, health: 2, hit: 0 })
+// 	insert_elemental({ cell: cells[4][2], element, level: 2, health: 2, hit: 1 })
+// 	insert_elemental({ cell: cells[5][2], element, level: 2, health: 2, hit: 2 })
 
-	// level 3
-	insert_elemental({ cell: cells[0][4], element, level: 3, health: 1, hit: 0 })
-	insert_elemental({ cell: cells[1][4], element, level: 3, health: 1, hit: 1 })
+// 	// level 3
+// 	insert_elemental({ cell: cells[0][4], element, level: 3, health: 1, hit: 0 })
+// 	insert_elemental({ cell: cells[1][4], element, level: 3, health: 1, hit: 1 })
 
-	insert_elemental({ cell: cells[3][4], element, level: 3, health: 2, hit: 0 })
-	insert_elemental({ cell: cells[4][4], element, level: 3, health: 2, hit: 1 })
-	insert_elemental({ cell: cells[5][4], element, level: 3, health: 2, hit: 2 })
+// 	insert_elemental({ cell: cells[3][4], element, level: 3, health: 2, hit: 0 })
+// 	insert_elemental({ cell: cells[4][4], element, level: 3, health: 2, hit: 1 })
+// 	insert_elemental({ cell: cells[5][4], element, level: 3, health: 2, hit: 2 })
 
-	insert_elemental({ cell: cells[7][4], element, level: 3, health: 3, hit: 0 })
-	insert_elemental({ cell: cells[8][4], element, level: 3, health: 3, hit: 1 })
-	insert_elemental({ cell: cells[9][4], element, level: 3, health: 3, hit: 2 })
+// 	insert_elemental({ cell: cells[7][4], element, level: 3, health: 3, hit: 0 })
+// 	insert_elemental({ cell: cells[8][4], element, level: 3, health: 3, hit: 1 })
+// 	insert_elemental({ cell: cells[9][4], element, level: 3, health: 3, hit: 2 })
 
-	insert_elemental({ cell: cells[0][6], element, level: 3, health: 4, hit: 0 })
-	insert_elemental({ cell: cells[1][6], element, level: 3, health: 4, hit: 1 })
-	insert_elemental({ cell: cells[2][6], element, level: 3, health: 4, hit: 2 })
-	insert_elemental({ cell: cells[3][6], element, level: 3, health: 4, hit: 4 })
+// 	insert_elemental({ cell: cells[0][6], element, level: 3, health: 4, hit: 0 })
+// 	insert_elemental({ cell: cells[1][6], element, level: 3, health: 4, hit: 1 })
+// 	insert_elemental({ cell: cells[2][6], element, level: 3, health: 4, hit: 2 })
+// 	insert_elemental({ cell: cells[3][6], element, level: 3, health: 4, hit: 4 })
 
-	insert_elemental({ cell: cells[5][6], element, level: 3, health: 5, hit: 0 })
-	insert_elemental({ cell: cells[6][6], element, level: 3, health: 5, hit: 1 })
-	insert_elemental({ cell: cells[7][6], element, level: 3, health: 5, hit: 2 })
-	insert_elemental({ cell: cells[8][6], element, level: 3, health: 5, hit: 4 })
+// 	insert_elemental({ cell: cells[5][6], element, level: 3, health: 5, hit: 0 })
+// 	insert_elemental({ cell: cells[6][6], element, level: 3, health: 5, hit: 1 })
+// 	insert_elemental({ cell: cells[7][6], element, level: 3, health: 5, hit: 2 })
+// 	insert_elemental({ cell: cells[8][6], element, level: 3, health: 5, hit: 4 })
 
-	insert_elemental({ cell: cells[0][8], element, level: 3, health: 6, hit: 0 })
-	insert_elemental({ cell: cells[1][8], element, level: 3, health: 6, hit: 1 })
-	insert_elemental({ cell: cells[2][8], element, level: 3, health: 6, hit: 2 })
-	insert_elemental({ cell: cells[3][8], element, level: 3, health: 6, hit: 4 })
-}
+// 	insert_elemental({ cell: cells[0][8], element, level: 3, health: 6, hit: 0 })
+// 	insert_elemental({ cell: cells[1][8], element, level: 3, health: 6, hit: 1 })
+// 	insert_elemental({ cell: cells[2][8], element, level: 3, health: 6, hit: 2 })
+// 	insert_elemental({ cell: cells[3][8], element, level: 3, health: 6, hit: 4 })
+// }
+//#endregion
 
 ;(function (global) {
 	const rng = (global.random = {})

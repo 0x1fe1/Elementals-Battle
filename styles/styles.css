@@ -7,6 +7,7 @@
 	padding: 0;
 	font-family: monospace;
 	-webkit-tap-highlight-color: transparent !important;
+	/* box-shadow: 0 0 0 4px blue, inset 0 0 0 4px red; */
 }
 
 :root {
@@ -31,6 +32,7 @@
 body {
 	overscroll-behavior: none;
 	background-color: var(--gray-900);
+	height: 100%;
 }
 
 i {
@@ -38,10 +40,11 @@ i {
 }
 
 [data-dom='game-container'] {
-	inset: 0;
+	position: absolute;
 
-	width: var(--container-width);
-	height: var(--container-height);
+	min-width: 100dvw;
+	min-height: 100dvh;
+	padding: 1rem;
 
 	display: grid;
 	grid-auto-flow: row;
@@ -51,15 +54,10 @@ i {
 }
 
 [data-dom='board'] {
-	width: var(--board-size);
-	height: var(--board-size);
-	border-radius: calc(0.25 * var(--vmin));
-
+	aspect-ratio: 1 / 1;
 	display: grid;
 	place-items: center;
-	place-content: space-evenly;
 
-	gap: var(--cell-gap);
 	grid-template-columns: repeat(12, 1fr);
 	grid-template-rows: repeat(12, 1fr);
 
@@ -67,15 +65,18 @@ i {
 }
 
 [data-dom='cell'] {
+	--m: calc(var(--cell-size) * 0.025);
 	width: var(--cell-size);
-	height: var(--cell-size);
+	aspect-ratio: 1 / 1;
+
+	margin: var(--m);
 	border-radius: calc(0.5 * var(--vmin));
 
 	overflow: hidden;
 	display: grid;
 	place-items: center;
 
-	outline: calc(2 * var(--cell-gap)) solid var(--gray-700);
+	outline: var(--m) solid var(--gray-700);
 	transition: 100ms;
 }
 [data-dom='cell'][data-player='blue'] {
@@ -84,7 +85,7 @@ i {
 [data-dom='cell']:before {
 	content: '';
 	width: var(--cell-size);
-	height: var(--cell-size);
+	aspect-ratio: 1 / 1;
 }
 
 [data-dom='cell'][data-player='green']:before {
@@ -101,9 +102,8 @@ i {
 }
 
 [data-dom='controller'] {
-	width: var(--controller-width);
-	height: var(--controller-height);
-
+	width: calc(5 * var(--action-spell-size));
+	aspect-ratio: 5 / 2;
 	border-radius: calc(0.5 * var(--action-spell-size)) / 50%;
 
 	display: grid;
@@ -126,7 +126,7 @@ i {
 	grid-auto-flow: column;
 }
 
-/*   abilities fuckery   */
+/**   spells fukery   */
 [data-dom='spell'] {
 	width: var(--action-spell-size);
 	aspect-ratio: 1 / 1;
@@ -139,13 +139,16 @@ i {
 	font-size: calc(var(--action-spell-size) * 0.75);
 	color: var(--gray-500);
 
-	background-color: var(--gray-800);
 	border: calc(0.05 * var(--action-spell-size)) solid var(--gray-700);
+	background-color: var(--gray-800);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: calc(var(--action-spell-size) * 0.8);
 
 	position: relative;
 	z-index: 0;
 }
-[data-dom='spell'] > img {
+[data-dom='spell_img'] {
 	width: 80%;
 	height: 80%;
 }
@@ -155,21 +158,37 @@ i {
 }
 [data-dom='controller'][data-player='blue'] [data-dom='spell'] {
 	color: var(--blue-500);
-	rotate: 180deg;
+	transform: rotate(180deg);
 }
 
-[data-dom='spell']::before {
+[data-dom='spell']::after {
 	content: attr(data-charge) '/' attr(data-max-charge);
 	width: calc(0.9 * var(--action-spell-size));
 	position: absolute;
 	bottom: 0;
 	left: 0;
 
-	font-size: calc(var(--action-spell-size) * 0.15);
+	font-size: calc(var(--action-spell-size) * 0.2);
 	font-family: 'Press Start 2P', sans-serif;
 	color: var(--gray-100);
 	text-align: center;
 	text-shadow: -1px 1px 0 #000, 1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
+}
+
+[data-dom='spell'][data-type='meteor-shower'] {
+	background-image: url('../images/meteor.png');
+}
+[data-dom='spell'][data-type='pendulum-of-reversed-time'] {
+	background-image: url('../images/boot.png');
+}
+[data-dom='spell'][data-type='ancient-figurine'] {
+	background-image: url('../images/pyramid.png');
+}
+[data-dom='spell'][data-type='the-lady-of-the-lake-vial'] {
+	background-image: url('../images/heal.png');
+}
+[data-dom='spell'][data-type='forest-master-staff'] {
+	background-image: url('../images/thorn.png');
 }
 
 /*   actions fuckery   */
@@ -517,34 +536,6 @@ p.spell.meteor-shower::first-line {
 	color: var(--red-500);
 }
 
-/*   landscape mode fuckery   */
-@media (orientation: landscape) {
-	[data-dom='game-container'] {
-		transform: rotate(270deg);
-		transform-origin: bottom right;
-
-		position: absolute;
-		top: calc(-100 * var(--vmax));
-		left: auto;
-	}
-
-	.modal {
-		width: calc(100 * var(--vmax));
-		height: calc(100 * var(--vmin));
-	}
-
-	.modal-content {
-		width: var(--modal-content-height);
-		height: var(--modal-content-width);
-	}
-
-	fieldset .input-wrapper {
-		grid-template-areas:
-			'air-input air-label fire-input fire-label rock-input rock-label'
-			'water-input water-label nature-input nature-label energy-input energy-label';
-	}
-}
-
 /*   elemental svg fuckery   */
 svg {
 	overflow: hidden;
@@ -602,9 +593,7 @@ svg {
 	translate: 10% 10%;
 }
 [data-dom='cell'][data-level='3'] .elemental-shape {
-	d: path(
-		'M 58,06 Q 50,0 42,06 L 10,29 Q 03,35 05,44 L 18,81 Q 21,91 31,91 L 70,91 Q 80,91 83,81 L 95,44 Q 98,35 90,29 L 58,06 Z'
-	);
+	d: path('M 58,06 Q 50,0 42,06 L 10,29 Q 03,35 05,44 L 18,81 Q 21,91 31,91 L 70,91 Q 80,91 83,81 L 95,44 Q 98,35 90,29 L 58,06 Z');
 
 	scale: 0.9;
 	translate: 5% 7.5%;

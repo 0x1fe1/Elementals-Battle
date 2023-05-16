@@ -1,0 +1,29 @@
+/*
+*   LANDSCAPE IS HORIZONTAL   PORTRAIT IS VERTICAL
+*/
+
+@media (orientation: landscape) {
+	[data-dom='game-container'] {
+		grid-auto-flow: column;
+	}
+
+	[data-dom='controller'] {
+		rotate: -90deg;
+	}
+
+	/* .modal {
+		width: calc(100 * var(--vmax));
+		height: calc(100 * var(--vmin));
+	}
+
+	.modal-content {
+		width: var(--modal-content-height);
+		height: var(--modal-content-width);
+	}
+
+	fieldset .input-wrapper {
+		grid-template-areas:
+			'air-input air-label fire-input fire-label rock-input rock-label'
+			'water-input water-label nature-input nature-label energy-input energy-label';
+	} */
+}
