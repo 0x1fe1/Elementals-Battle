@@ -129,9 +129,8 @@ function remove_elemental(cell) {
 
 function get_cells(type) {
 	const cells_raw = get_elements.dom('cell')
-	// const cells = new Array(12).fill().map((_, i) => new Array(12).fill().map((_, j) => cells_raw[j + i * 12]))
-	if (type === 'green') return cells_raw.slice(0, 72)
-	if (type === 'blue') return cells_raw.slice(72, 144)
+	if (type === GAME_PLAYERS.BLUE) return cells_raw.slice(0, 72)
+	if (type === GAME_PLAYERS.GREEN) return cells_raw.slice(72, 144)
 	return cells_raw
 }
 
@@ -140,7 +139,7 @@ function clear_cells(cells) {
 }
 
 function toggle_active(elements, forced_state) {
-	;[elements].flat().forEach((e) => set_data(e, 'active', forced_state ?? !e.dataset.active == 'true'))
+	;[elements].flat(100).forEach((e) => set_data(e, 'active', forced_state ?? !(e.dataset.active == 'true')))
 }
 
 const handle_click = {
@@ -148,24 +147,9 @@ const handle_click = {
 	action: () => {},
 	spell: () => {},
 }
-// (target) {
-// 	const target_dom = get_data(target).dom
-// 	get_elements.query(`[data-active="true"][data-dom="${target_dom}"]`).forEach((e) => toggle_active(e, false))
-// 	toggle_active(target, true)
-
-// 	// console.dir(target.dataset)
-// 	// if (target_dom === 'action') {
-// 	// 	const action_type = get_data(target).type
-// 	// 	if (action_type === 'skip') {
-// 	// 		toggle_active(get_elements.dom_active('cell'), false)
-// 	// 		merge_cells(get_cells(), get_data(target).player)
-// 	// 	}
-// 	// }
-// }
 //#endregion
 
 //#region //* Helpers
-
 const get_elements = {
 	dom: (query) => Array.from(document.querySelectorAll(`[data-dom="${query}"]`)),
 	dom_active: (query) => Array.from(document.querySelectorAll(`[data-active="true"][data-dom="${query}"]`)),
@@ -176,7 +160,7 @@ const get_elements = {
 }
 
 function get_data(element) {
-	return JSON.parse(JSON.stringify(element.dataset))
+	return JSON.parse(JSON.stringify(element?.dataset))
 }
 
 function set_data(element, type, data) {
@@ -184,52 +168,8 @@ function set_data(element, type, data) {
 }
 
 function allEqualNotNull(array) {
-	return array.every((v) => v === array[0] && v !== null && v !== 'null')
+	return array.every((v) => v === array[0] && v != null && v !== 'null')
 }
-
-//#region debug_display_variants
-// function debug_display_variants(element) {
-// 	const cells = get_cells()
-// 	// level 1
-// 	insert_elemental({ cell: cells[0][0], element, level: 1, health: 1, hit: 0 })
-// 	insert_elemental({ cell: cells[1][0], element, level: 1, health: 1, hit: 1 })
-
-// 	// level 2
-// 	insert_elemental({ cell: cells[0][2], element, level: 2, health: 1, hit: 0 })
-// 	insert_elemental({ cell: cells[1][2], element, level: 2, health: 1, hit: 1 })
-
-// 	insert_elemental({ cell: cells[3][2], element, level: 2, health: 2, hit: 0 })
-// 	insert_elemental({ cell: cells[4][2], element, level: 2, health: 2, hit: 1 })
-// 	insert_elemental({ cell: cells[5][2], element, level: 2, health: 2, hit: 2 })
-
-// 	// level 3
-// 	insert_elemental({ cell: cells[0][4], element, level: 3, health: 1, hit: 0 })
-// 	insert_elemental({ cell: cells[1][4], element, level: 3, health: 1, hit: 1 })
-
-// 	insert_elemental({ cell: cells[3][4], element, level: 3, health: 2, hit: 0 })
-// 	insert_elemental({ cell: cells[4][4], element, level: 3, health: 2, hit: 1 })
-// 	insert_elemental({ cell: cells[5][4], element, level: 3, health: 2, hit: 2 })
-
-// 	insert_elemental({ cell: cells[7][4], element, level: 3, health: 3, hit: 0 })
-// 	insert_elemental({ cell: cells[8][4], element, level: 3, health: 3, hit: 1 })
-// 	insert_elemental({ cell: cells[9][4], element, level: 3, health: 3, hit: 2 })
-
-// 	insert_elemental({ cell: cells[0][6], element, level: 3, health: 4, hit: 0 })
-// 	insert_elemental({ cell: cells[1][6], element, level: 3, health: 4, hit: 1 })
-// 	insert_elemental({ cell: cells[2][6], element, level: 3, health: 4, hit: 2 })
-// 	insert_elemental({ cell: cells[3][6], element, level: 3, health: 4, hit: 4 })
-
-// 	insert_elemental({ cell: cells[5][6], element, level: 3, health: 5, hit: 0 })
-// 	insert_elemental({ cell: cells[6][6], element, level: 3, health: 5, hit: 1 })
-// 	insert_elemental({ cell: cells[7][6], element, level: 3, health: 5, hit: 2 })
-// 	insert_elemental({ cell: cells[8][6], element, level: 3, health: 5, hit: 4 })
-
-// 	insert_elemental({ cell: cells[0][8], element, level: 3, health: 6, hit: 0 })
-// 	insert_elemental({ cell: cells[1][8], element, level: 3, health: 6, hit: 1 })
-// 	insert_elemental({ cell: cells[2][8], element, level: 3, health: 6, hit: 2 })
-// 	insert_elemental({ cell: cells[3][8], element, level: 3, health: 6, hit: 4 })
-// }
-//#endregion
 
 ;(function (global) {
 	const rng = (global.random = {})

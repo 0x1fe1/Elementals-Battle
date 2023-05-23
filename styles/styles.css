@@ -556,7 +556,7 @@ svg {
 }
 .elemental-shape {
 	stroke: var(--gray-800);
-	stroke-width: 5;
+	stroke-width: 3;
 }
 
 /*   elemental gradient color fuckery   */

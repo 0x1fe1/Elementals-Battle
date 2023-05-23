@@ -48,8 +48,8 @@ const GAME_PLAYERS = {
 
 const GAME_STATES = {
 	STARTED: 'started',
-	WAITING: 'waiting',
-	RUNNING: 'running',
+	WAITING: 'waiting', //? PLAYER INPUT
+	RUNNING: 'running', //? GAME ANIMATIONS
 	FINISHED: 'finished',
 }
 
@@ -60,7 +60,10 @@ const GAME_STATES = {
  ** when a cell becomes inactive -> move the elemental up (does not trigger merge)
  */
 
-const CLICK_HISTORY = []
+const CLICK_LOG = {
+	history: [],
+	last: undefined,
+}
 
 class Game {
 	constructor() {
@@ -104,8 +107,8 @@ class Game {
 				if (dom !== 'cell' && dom !== 'spell' && dom !== 'action') return
 				const target = get_elements.closest_dom(e.target, dom)
 
-				// console.log('CLICK HANDLER - COMING SOON™', { target }) //TODO: CLICK HANDLER
-				CLICK_HISTORY.push({ dom, target })
+				CLICK_LOG.history.push(CLICK_LOG.last)
+				CLICK_LOG.last = target
 			})
 		}
 
@@ -119,37 +122,37 @@ class Game {
 	}
 
 	game_loop() {
-		if (this.state === GAME_STATES.STARTED) {
-			console.log('GAME STARTED - INITIALIZATION')
+		if (this.state === GAME_STATES.STARTED && (this.state = GAME_STATES.WAITING)) {
+			console.log('GAME STARTED')
 
 			this.board.insert_elementals()
 			this.set_event_listeners()
-
-			this.state = GAME_STATES.WAITING
 		}
 
-		if (this.state === GAME_STATES.WAITING) {
+		if (this.state === GAME_STATES.WAITING && (this.state = GAME_STATES.RUNNING)) {
 			console.log('GAME WAITING')
 
-			console.log({ CLICK_HISTORY, smth: CLICK_HISTORY.map((e) => get_data(e.target)) })
+			if (CLICK_LOG.last != null && get_data(CLICK_LOG.last).type === 'skip') {
+				this.controllers.blue.toggle_active()
+				this.controllers.green.toggle_active()
+			}
 
-			// this.state = GAME_STATES.RUNNING
-		} else if (this.state === GAME_STATES.RUNNING) {
+			CLICK_LOG.history.push(CLICK_LOG.last)
+			CLICK_LOG.last = null
+		} else if (this.state === GAME_STATES.RUNNING && (this.state = GAME_STATES.WAITING)) {
 			console.log('GAME RUNNING')
-
-			this.state = GAME_STATES.WAITING
 		}
 
 		if (this.state === GAME_STATES.FINISHED) {
 			console.log("GAME OVER - how in the Lord's name did you get here?")
-		} else setTimeout(() => this.game_loop(), 1000)
+		} //else setTimeout(() => this.game_loop(), 100)
 	}
 }
 
 class Controller {
 	constructor(player) {
 		this.color = player
-		this.self = get_elements.dom_player('controller', this.color)
+		this.self = get_elements.dom_player('controller', this.color)[0]
 		this.spells = get_elements.dom_player('spell', this.color)
 		this.actions = get_elements.dom_player('action', this.color)
 	}
@@ -163,8 +166,8 @@ class Controller {
 class Board {
 	static default() {
 		return new Board(get_cells().flat(), {
-			green: [ELEMENTS.FIRE],
-			blue: [ELEMENTS.AIR],
+			green: [ELEMENTS.WATER, ELEMENTS.AIR],
+			blue: [ELEMENTS.NATURE, ELEMENTS.ROCK],
 		})
 	}
 
@@ -198,41 +201,47 @@ class Board {
 		this.cells.forEach(remove_elemental)
 	}
 
-	merge_cells(old_cells, player) {
-		const new_cells = old_cells //new Array(12).fill().map(() => new Array(12).fill())
-		const [sy, ey] = player === 'blue' ? [1, 5] : [7, 11]
-		const [sx, ex] = [1, 11]
-		const cells_to_remove = []
+	find_elemental(cell) {
+		return this.elementals.find((e) => get_data(e.cell).x === get_data(cell).x && get_data(e.cell).y === get_data(cell).y)
+	}
 
-		for (let y = sy; y < ey; y++) {
-			for (let x = sx; x < ex; x++) {
-				if (y === 5 || y === 6) continue
-				const cells_check = old_cells
-					.slice(y - 1, y + 2)
-					.map((row) => row.slice(x - 1, x + 2))
-					.flat()
-				const result = check_merge(cells_check)
+	//#region //* merging
+	merge_cells(player) {
+		if (player !== GAME_PLAYERS.BLUE && player !== GAME_PLAYERS.GREEN) return console.error('invalid player: ', player)
+		const cells = get_cells(player)
+		const [y1, y2] = [0, 4]
+		const [x1, x2] = [0, 10]
+		const cells_to_remove = new Set()
+		const cells_to_upgrade = new Set()
+
+		for (let y = y1; y < y2; y++) {
+			for (let x = x1; x < x2; x++) {
+				const check_area = []
+				for (let j = y; j < y + 3; j++) for (let i = x; i < x + 3; i++) check_area.push(cells[i + j * 12])
+
+				const result = this.check_merge(check_area)
 				if (result.length === 0) continue
+				// console.log({ area: { x, y }, check_area, result })
+				// console.log(result.map((r) => check_area[r[1]]))
 
 				result.forEach((config) => {
-					cells_to_remove.push({ x: get_data(cells_check[config[0]]).x, y: get_data(cells_check[config[0]]).y })
-					cells_to_remove.push({ x: get_data(cells_check[config[2]]).x, y: get_data(cells_check[config[2]]).y })
-
-					const cell_upgrade = new_cells[get_data(cells_check[config[1]]).y][get_data(cells_check[config[1]]).x]
-					const new_elemental = Elemental.from_cell(cell_upgrade).upgrade()
-
-					insert_elemental({ cell: cell_upgrade, ...new_elemental })
+					cells_to_remove.add(check_area[config[0]])
+					cells_to_upgrade.add(check_area[config[1]])
+					cells_to_remove.add(check_area[config[2]])
 				})
 			}
 		}
 
-		cells_to_remove.forEach((pos) => remove_elemental(new_cells[pos.y][pos.x]))
+		console.log({ cells_to_remove, cells_to_upgrade })
+
+		// cells_to_remove.forEach((pos) => remove_elemental(new_cells[pos.y][pos.x]))
 	}
 
 	check_merge(cells) {
-		const occupieds = cells.map((cell) => get_data(cell).occupied ?? null)
-		const elements = cells.map((cell) => get_data(cell).element ?? null)
-		const levels = cells.map((cell) => get_data(cell).level ?? null)
+		const elementals = cells.map((cell) => this.find_elemental(cell))
+
+		const elements = elementals.map((e) => e?.element)
+		const levels = elementals.map((e) => e?.level)
 		const configurations = [
 			[0, 1, 2],
 			[3, 4, 5],
@@ -244,13 +253,13 @@ class Board {
 			[2, 4, 6],
 		]
 		const result = configurations.filter((config) => {
-			const config_occupieds = config.map((i) => occupieds[i]).filter((e) => e !== false)
 			const config_elements = config.map((i) => elements[i])
 			const config_levels = config.map((i) => levels[i])
-			return allEqualNotNull(config_occupieds) && allEqualNotNull(config_elements) && allEqualNotNull(config_levels)
+			return allEqualNotNull(config_elements) && allEqualNotNull(config_levels)
 		})
 		return result
 	}
+	//#endregion
 }
 
 class Elemental {
