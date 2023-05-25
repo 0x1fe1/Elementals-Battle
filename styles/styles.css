@@ -10,6 +10,10 @@
 	/* box-shadow: 0 0 0 4px blue, inset 0 0 0 4px red; */
 }
 
+html {
+	color-scheme: light dark;
+}
+
 :root {
 	--vmin: 1dvmin;
 	--vmax: 1dvmax;
@@ -110,11 +114,11 @@ i {
 	place-items: center;
 
 	background-color: var(--gray-700);
-	transition: 100ms;
+	transition: filter 100ms;
 }
 [data-dom='controller'][data-active='false'] {
 	filter: brightness(50%);
-	transition: 100ms;
+	transition: filter 100ms;
 }
 
 .spell-selector,
@@ -541,6 +545,8 @@ svg {
 	overflow: hidden;
 	position: absolute;
 	transition: 500ms;
+	display: block;
+	max-width: 100%;
 }
 
 [data-dom='cell'][data-occupied='true'] > svg {

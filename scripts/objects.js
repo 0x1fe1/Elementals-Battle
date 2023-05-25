@@ -1,10 +1,10 @@
 const ELEMENTS = {
 	AIR: 'air',
+	ENERGY: 'energy',
 	FIRE: 'fire',
+	NATURE: 'nature',
 	ROCK: 'rock',
 	WATER: 'water',
-	NATURE: 'nature',
-	ENERGY: 'energy',
 }
 
 const ACTIONS = {
@@ -35,18 +35,18 @@ const SPELL_MAX_CHARGE = {
 	METEOR_SHOWER: 10,
 }
 
-const SPELL_DAMAGES = {
+const SPELL_DAMAGE = {
 	THORN_VINES: 2,
 	PYRAMID: 1,
 	METEOR_SHOWER: 4,
 }
 
-const GAME_PLAYERS = {
+const PLAYER_TYPE = {
 	GREEN: 'green',
 	BLUE: 'blue',
 }
 
-const GAME_STATES = {
+const GAME_STATE = {
 	STARTED: 'started',
 	WAITING: 'waiting', //? PLAYER INPUT
 	RUNNING: 'running', //? GAME ANIMATIONS
@@ -64,15 +64,19 @@ const CLICK_LOG = {
 	history: [],
 	last: undefined,
 }
+CLICK_LOG.__proto__.update = function foo() {
+	CLICK_LOG.history.push(CLICK_LOG.last)
+	CLICK_LOG.last = null
+}
 
 class Game {
 	constructor() {
-		this.state = GAME_STATES.STARTED
-		this.active_player = GAME_PLAYERS.GREEN
+		this.state = GAME_STATE.STARTED
+		this.active_player = PLAYER_TYPE.GREEN
 
 		this.controllers = {
-			blue: new Controller(GAME_PLAYERS.BLUE).toggle_active(this.active_player === GAME_PLAYERS.BLUE),
-			green: new Controller(GAME_PLAYERS.GREEN).toggle_active(this.active_player === GAME_PLAYERS.GREEN),
+			blue: new Controller(PLAYER_TYPE.BLUE).toggle_active(this.active_player === PLAYER_TYPE.BLUE),
+			green: new Controller(PLAYER_TYPE.GREEN).toggle_active(this.active_player === PLAYER_TYPE.GREEN),
 		}
 		this.board = Board.default()
 
@@ -122,28 +126,28 @@ class Game {
 	}
 
 	game_loop() {
-		if (this.state === GAME_STATES.STARTED && (this.state = GAME_STATES.WAITING)) {
+		if (this.state === GAME_STATE.STARTED && (this.state = GAME_STATE.WAITING)) {
 			console.log('GAME STARTED')
 
 			this.board.insert_elementals()
 			this.set_event_listeners()
 		}
 
-		if (this.state === GAME_STATES.WAITING && (this.state = GAME_STATES.RUNNING)) {
+		if (this.state === GAME_STATE.WAITING && (this.state = GAME_STATE.RUNNING)) {
 			console.log('GAME WAITING')
+		} else if (this.state === GAME_STATE.RUNNING && (this.state = GAME_STATE.WAITING)) {
+			console.log('GAME RUNNING')
 
 			if (CLICK_LOG.last != null && get_data(CLICK_LOG.last).type === 'skip') {
 				this.controllers.blue.toggle_active()
 				this.controllers.green.toggle_active()
+				this.active_player = this.active_player == PLAYER_TYPE.BLUE ? PLAYER_TYPE.GREEN : PLAYER_TYPE.BLUE
 			}
 
-			CLICK_LOG.history.push(CLICK_LOG.last)
-			CLICK_LOG.last = null
-		} else if (this.state === GAME_STATES.RUNNING && (this.state = GAME_STATES.WAITING)) {
-			console.log('GAME RUNNING')
+			CLICK_LOG.update()
 		}
 
-		if (this.state === GAME_STATES.FINISHED) {
+		if (this.state === GAME_STATE.FINISHED) {
 			console.log("GAME OVER - how in the Lord's name did you get here?")
 		} //else setTimeout(() => this.game_loop(), 100)
 	}
@@ -178,15 +182,58 @@ class Board {
 		this.elementals = this.generate_cells()
 	}
 
+	/**
+	 ** BOARD: row_0/row_1/row_2/row_3/row_4/row_5/row_6/row_7/row_8/row_9/row_10/row_11/
+	 ** ROW: Element+Level+Health|Empty: Element=[a|e|f|n|r|w] Level=[1..3]  Health=[1..6] ?Empty:_[1..12]?
+	 ** Example: a11|11/1|a21|10/2|a21|9/3|a21|8/4|a21|7/5|a21|6/6|a21|5/7|a21|4/8|a21|3/9|a21|2/10|a21|1/11|a21
+	 */
+	get_board_state() {
+		let state = ''
+		for (let j = 0; j < 12; j++) {
+			let empty_count = 0
+			for (let i = 0; i < 12; i++) {
+				const cell = this.cells[i + j * 12]
+				const elemental = this.find_elemental(cell)
+
+				if (elemental != null) {
+					if (empty_count > 0) {
+						state += `${empty_count}|`
+						empty_count = 0
+					}
+					state += `${elemental.element[0]}${elemental.level}${elemental.health}|` // `${elemental.element[0]}${i.toString(16)}${j.toString(16)}|`
+				}
+				if (elemental == null) empty_count++
+			}
+			if (empty_count > 0) state += `${empty_count}`
+			if (state.at(-1) === '|') state = state.slice(0, -1) //? removes last '|' from state
+			state += '/'
+		}
+
+		return state
+	}
+
+	set_board_state(board_state) {}
+
+	prettify_board_state(board_state) {
+		let state_log = '-----+'.repeat(12) + '\n ' + board_state.replaceAll('/', `|\n${'-----+'.repeat(12)}\n `).replaceAll('|', ' | ')
+		for (let i = 1; i <= 12; i++) state_log = state_log.replaceAll(` ${i} `, '     |'.repeat(i).slice(0, -1))
+		state_log = state_log.substring(0, 882) + '=====+'.repeat(12) + state_log.substring(953 + 1)
+		return state_log
+			.split('\n')
+			.map((s, i) => (i % 2 === 0 ? '+' : '|') + s.trimEnd())
+			.join('\n')
+			.slice(0, -1)
+	}
+
 	generate_cells() {
 		const elementals = []
 		const num = 30 + random.sign() * 3
 
 		for (let i = 0; i < num; i++) {
-			;['green', 'blue'].forEach((col) => {
-				if (this.elements[col].length === 0) return
-				const cell = random.array(this.cells.flat().filter((c) => c.dataset.occupied === 'false' && c.dataset.player === col))
-				elementals.push(new Elemental(random.array(this.elements[col]), 1).bind(cell))
+			Object.values(PLAYER_TYPE).forEach((player) => {
+				if (this.elements[player].length === 0) return
+				const cell = random.array(this.cells.flat().filter((c) => get_data(c).occupied === 'false' && get_data(c).player === player))
+				elementals.push(new Elemental(random.array(this.elements[player]), 1).bind(cell))
 			})
 		}
 
@@ -205,9 +252,8 @@ class Board {
 		return this.elementals.find((e) => get_data(e.cell).x === get_data(cell).x && get_data(e.cell).y === get_data(cell).y)
 	}
 
-	//#region //* merging
 	merge_cells(player) {
-		if (player !== GAME_PLAYERS.BLUE && player !== GAME_PLAYERS.GREEN) return console.error('invalid player: ', player)
+		if (player !== PLAYER_TYPE.BLUE && player !== PLAYER_TYPE.GREEN) return console.error('invalid player: ', player)
 		const cells = get_cells(player)
 		const [y1, y2] = [0, 4]
 		const [x1, x2] = [0, 10]
@@ -259,7 +305,6 @@ class Board {
 		})
 		return result
 	}
-	//#endregion
 }
 
 class Elemental {
@@ -273,23 +318,26 @@ class Elemental {
 		return new Elemental(element, level)
 	}
 
-	static from_cell(cell) {
-		return new Elemental(get_data(cell).element, get_data(cell).level).bind(cell)
-	}
-
-	constructor(element, level) {
+	constructor(element, level, health) {
 		this.element = element
-		this.level = level - 0
-		this.health = MAX_HEALTH[level - 1]
+		this.level = level
+		this.health = health ?? MAX_HEALTH[level - 1]
+
 		this.hit = 0
 		this.damage = DAMAGE[level - 1]
 		this.reach = REACH[level - 1]
+
+		this.cell = null
+		this.pos = { x: null, y: null }
 
 		return this
 	}
 
 	bind(cell) {
+		set_data(cell, 'occupied', true)
 		this.cell = cell
+		this.pos.x = get_data(cell).x
+		this.pos.y = get_data(cell).y
 		return this
 	}
 

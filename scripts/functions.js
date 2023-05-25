@@ -21,7 +21,7 @@ function insert_default_cells(board) {
 		for (let j = 0; j < 12; j++) {
 			board.innerHTML += `
             <div data-dom="cell" data-occupied="false" data-x="${j}" data-y="${i}"
-                data-player="${i < 6 ? 'blue' : 'green'}"
+                data-player="${i < 6 ? PLAYER_TYPE.BLUE : PLAYER_TYPE.GREEN}"
                 data-shade="${i % 2 === j % 2 ? 'light' : 'dark'}">
                 <svg class="elemental" viewbox="0 0 100 100" data-dom="cell_svg">
                     <path class="elemental-shape" data-dom="cell_path"/>
@@ -41,7 +41,7 @@ function insert_gradients(gradient_svg) {
 		gradients += `
         <radialgradient id="gradient-${elements[i]}">
             <stop offset="10%" stop-color="var(--gradient-${elements[i]}-1)" />
-            <stop offset="100%" stop-color="var(--gradient-${elements[i]}-2)" />
+            <stop offset="90%" stop-color="var(--gradient-${elements[i]}-2)" />
         </radialgradient>`
 	}
 	gradient_svg.innerHTML += gradients
@@ -84,7 +84,7 @@ function set_settings_events() {
 				.filter((el) => el !== '')
 				.map((e) => ELEMENTS[e])
 
-		const elements = { green: foo('green'), blue: foo('blue') }
+		const elements = { green: foo(PLAYER_TYPE.GREEN), blue: foo(PLAYER_TYPE.BLUE) }
 
 		clear_cells(cells)
 		generate_cells(cells, elements)
@@ -97,7 +97,7 @@ function reset_data_attributes() {
 	;['controller', 'spell', 'action', 'cell'].forEach((ec) => get_elements.dom(ec).forEach((e) => toggle_active(e, false)))
 
 	//* Which Player
-	;['green', 'blue'].forEach((c) => {
+	Object.values(PLAYER_TYPE).forEach((c) => {
 		get_elements.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="spell"],[data-dom="action"])`).forEach((e) => (e.dataset.player = c))
 	})
 
@@ -112,7 +112,7 @@ function reset_data_attributes() {
 
 //#region //* General
 function insert_elemental({ cell, element, level = 1, health = 1, hit = 0 }) {
-	cell.dataset.occupied = true
+	cell.dataset.occupied = 'true'
 	cell.dataset.element = element
 	cell.dataset.level = level
 	cell.dataset.health = health
@@ -129,8 +129,8 @@ function remove_elemental(cell) {
 
 function get_cells(type) {
 	const cells_raw = get_elements.dom('cell')
-	if (type === GAME_PLAYERS.BLUE) return cells_raw.slice(0, 72)
-	if (type === GAME_PLAYERS.GREEN) return cells_raw.slice(72, 144)
+	if (type === PLAYER_TYPE.BLUE) return cells_raw.slice(0, 72)
+	if (type === PLAYER_TYPE.GREEN) return cells_raw.slice(72, 144)
 	return cells_raw
 }
 
@@ -160,6 +160,7 @@ const get_elements = {
 }
 
 function get_data(element) {
+	if (element == null) return console.error('Invalid element', element)
 	return JSON.parse(JSON.stringify(element?.dataset))
 }
 
