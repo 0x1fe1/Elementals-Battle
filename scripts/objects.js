@@ -84,7 +84,7 @@ class Game {
 	}
 
 	set_event_listeners() {
-		const fn = (element) => {
+		const fn = (element, type) => {
 			let last_pointer_id = 0,
 				has_moved = false
 
@@ -101,28 +101,24 @@ class Game {
 
 			//* actual event
 			element.addEventListener('pointerup', (e) => {
-				const controller = get_elements.closest_dom(e.target, 'controller')
-				if (controller != null && get_data(controller).active === 'false') return
-
 				if (last_pointer_id !== e.pointerId) return
 				if (has_moved) return (has_moved = false)
 
-				const dom = get_data(element).dom
-				if (dom !== 'cell' && dom !== 'spell' && dom !== 'action') return
-				const target = get_elements.closest_dom(e.target, dom)
+				let closest_element //? cell | spell | action
+				if (type === 'board') closest_element = get_elements.closest_dom(e.target, 'cell')
+				if (type === 'controller') closest_element = get_elements.closest_dom(e.target, 'spell') ?? get_elements.closest_dom(e.target, 'action')
+
+				if (type === 'controller' && get_data(get_elements.closest_dom(e.target, 'controller')).active === 'false') return
+				if (closest_element == null) return
 
 				CLICK_LOG.history.push(CLICK_LOG.last)
-				CLICK_LOG.last = target
+				CLICK_LOG.last = closest_element
 			})
 		}
 
-		const cells = this.board.cells
-		const spells = this.controllers.blue.spells.concat(this.controllers.green.spells)
-		const actions = this.controllers.blue.actions.concat(this.controllers.green.actions)
-
-		cells.forEach(fn)
-		spells.forEach(fn)
-		actions.forEach(fn)
+		fn(this.board.self, 'board')
+		fn(this.controllers.blue.self, 'controller')
+		fn(this.controllers.green.self, 'controller')
 	}
 
 	game_loop() {
@@ -179,55 +175,16 @@ class Board {
 		this.cells = cells
 		this.self = get_elements.dom('board')[0]
 		this.elements = elements
-		this.elementals = this.generate_cells()
+		this.elementals = this.generate_elementals()
 	}
 
-	/**
-	 ** BOARD: row_0/row_1/row_2/row_3/row_4/row_5/row_6/row_7/row_8/row_9/row_10/row_11/
-	 ** ROW: Element+Level+Health|Empty: Element=[a|e|f|n|r|w] Level=[1..3]  Health=[1..6] ?Empty:_[1..12]?
-	 ** Example: a11|11/1|a21|10/2|a21|9/3|a21|8/4|a21|7/5|a21|6/6|a21|5/7|a21|4/8|a21|3/9|a21|2/10|a21|1/11|a21
-	 */
-	get_board_state() {
-		let state = ''
-		for (let j = 0; j < 12; j++) {
-			let empty_count = 0
-			for (let i = 0; i < 12; i++) {
-				const cell = this.cells[i + j * 12]
-				const elemental = this.find_elemental(cell)
-
-				if (elemental != null) {
-					if (empty_count > 0) {
-						state += `${empty_count}|`
-						empty_count = 0
-					}
-					state += `${elemental.element[0]}${elemental.level}${elemental.health}|` // `${elemental.element[0]}${i.toString(16)}${j.toString(16)}|`
-				}
-				if (elemental == null) empty_count++
-			}
-			if (empty_count > 0) state += `${empty_count}`
-			if (state.at(-1) === '|') state = state.slice(0, -1) //? removes last '|' from state
-			state += '/'
-		}
-
-		return state
+	set_elements(elements) {
+		this.elements = elements
 	}
 
-	set_board_state(board_state) {}
-
-	prettify_board_state(board_state) {
-		let state_log = '-----+'.repeat(12) + '\n ' + board_state.replaceAll('/', `|\n${'-----+'.repeat(12)}\n `).replaceAll('|', ' | ')
-		for (let i = 1; i <= 12; i++) state_log = state_log.replaceAll(` ${i} `, '     |'.repeat(i).slice(0, -1))
-		state_log = state_log.substring(0, 882) + '=====+'.repeat(12) + state_log.substring(953 + 1)
-		return state_log
-			.split('\n')
-			.map((s, i) => (i % 2 === 0 ? '+' : '|') + s.trimEnd())
-			.join('\n')
-			.slice(0, -1)
-	}
-
-	generate_cells() {
+	generate_elementals() {
 		const elementals = []
-		const num = 30 + random.sign() * 3
+		const num = 30 - random.int(4, 6)
 
 		for (let i = 0; i < num; i++) {
 			Object.values(PLAYER_TYPE).forEach((player) => {

@@ -142,10 +142,47 @@ function toggle_active(elements, forced_state) {
 	;[elements].flat(100).forEach((e) => set_data(e, 'active', forced_state ?? !(e.dataset.active == 'true')))
 }
 
-const handle_click = {
-	cell: () => {},
-	action: () => {},
-	spell: () => {},
+/**
+ ** BOARD: row_0/row_1/row_2/row_3/row_4/row_5/row_6/row_7/row_8/row_9/row_10/row_11/
+ ** ROW: Element+Level+Health|Empty: Element=[a|e|f|n|r|w] Level=[1..3]  Health=[1..6] ?Empty:_[1..12]?
+ ** Example: a11|11/1|a21|10/2|a21|9/3|a21|8/4|a21|7/5|a21|6/6|a21|5/7|a21|4/8|a21|3/9|a21|2/10|a21|1/11|a21
+ */
+function get_board_state(board) {
+	let state = ''
+	for (let j = 0; j < 12; j++) {
+		let empty_count = 0
+		for (let i = 0; i < 12; i++) {
+			const cell = board.cells[i + j * 12]
+			const elemental = board.find_elemental(cell)
+
+			if (elemental != null) {
+				if (empty_count > 0) {
+					state += `${empty_count}|`
+					empty_count = 0
+				}
+				state += `${elemental.element[0]}${elemental.level}${elemental.health}|` // `${elemental.element[0]}${i.toString(16)}${j.toString(16)}|`
+			}
+			if (elemental == null) empty_count++
+		}
+		if (empty_count > 0) state += `${empty_count}`
+		if (state.at(-1) === '|') state = state.slice(0, -1) //? removes last '|' from state
+		state += '/'
+	}
+
+	return state
+}
+
+function set_board_state(board, board_state) {}
+
+function prettify_board_state(board_state) {
+	let state_log = '-----+'.repeat(12) + '\n ' + board_state.replaceAll('/', `|\n${'-----+'.repeat(12)}\n `).replaceAll('|', ' | ')
+	for (let i = 1; i <= 12; i++) state_log = state_log.replaceAll(` ${i} `, '     |'.repeat(i).slice(0, -1))
+	state_log = state_log.substring(0, 882) + '=====+'.repeat(12) + state_log.substring(953 + 1)
+	return state_log
+		.split('\n')
+		.map((s, i) => (i % 2 === 0 ? '+' : '|') + s.trimEnd())
+		.join('\n')
+		.slice(0, -1)
 }
 //#endregion
 
