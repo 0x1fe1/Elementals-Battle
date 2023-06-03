@@ -34,7 +34,8 @@
 	content: '\f04e';
 }
 
-.fa-up-down-left-right::before {
+/* ? previously: fa-up-down-left-right */
+.fa-arrows::before {
 	content: '\f0b2';
 }
 

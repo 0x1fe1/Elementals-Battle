@@ -1,7 +1,7 @@
 //#region //* Setup & Event Listeners
 function setup() {
 	// updateViewportSize()
-	insert_default_cells(get_elements.dom(DOM.BOARD))
+	insert_default_cells(document_get.dom(DOM.BOARD))
 	insert_gradients(document.querySelector('.gradients'))
 	reset_data_attributes()
 	set_modal_events()
@@ -20,12 +20,12 @@ function insert_default_cells(board) {
 	for (let i = 0; i < BOARD_SIZE; i++)
 		for (let j = 0; j < BOARD_SIZE; j++)
 			board.innerHTML += `
-            <div data-dom="cell" data-occupied="false" 
-                data-x="${j}" data-y="${i}" data-id="${j}-${i}"  
+            <div data-dom="cell" data-occupied="false" data-dir="null" 
+                data-x="${j}" data-y="${i}" data-id="${j.toString(16)}-${i.toString(16)}"  
                 data-player="${i < 6 ? PLAYER_TYPE.BLUE : PLAYER_TYPE.GREEN}" 
                 data-shade="${i % 2 === j % 2 ? 'light' : 'dark'}"></div>`
 
-	get_elements.dom(DOM.CELL).forEach((cell) => {
+	document_get.dom(DOM.CELL).forEach((cell) => {
 		cell.innerHTML += `
         <svg class="elemental" viewbox="0 0 100 100" data-dom="cell_svg">
             <path class="elemental-shape" data-dom="cell_path"/>
@@ -74,8 +74,6 @@ function set_modal_events() {
 }
 
 function set_settings_events() {
-	const cells = get_cells()
-
 	const inputs = Array.from(document.querySelectorAll('input'))
 	const confirm_settings = document.querySelector('.submit-settings')
 	confirm_settings.addEventListener('click', () => {
@@ -88,25 +86,35 @@ function set_settings_events() {
 
 		const elements = { green: foo(PLAYER_TYPE.GREEN), blue: foo(PLAYER_TYPE.BLUE) }
 
-		clear_cells(cells)
-		generate_cells(cells, elements)
-		get_elements.query('.close-modal').click()
+		game.board.remove_all_elementals()
+		// game.board.set_elements(elements)
+		// game.board.generate_elementals()
+		// game.board.insert_elementals()
+		setTimeout(() => {
+			document_get.query('.close-modal').click()
+		}, 1000)
 	})
 }
 
 function reset_data_attributes() {
 	//* Active States
-	;['controller', 'spell', 'action', 'cell'].forEach((ec) => get_elements.dom(ec).forEach((e) => toggle_active(e, false)))
+	;[DOM.CONTROLLER, DOM.SPELL, DOM.ACTION, DOM.CELL].forEach((ec) =>
+		document_get.dom(ec).forEach((e) => toggle_active(e, false)),
+	)
 
 	//* Which Player
 	Object.values(PLAYER_TYPE).forEach((c) => {
-		get_elements.query(`[data-dom="controller"][data-player="${c}"] :is([data-dom="spell"],[data-dom="action"])`).forEach((e) => (e.dataset.player = c))
+		document_get
+			.query(
+				`[data-dom="${DOM.CONTROLLER}"][data-player="${c}"] :is([data-dom="${DOM.SPELL}"],[data-dom="${DOM.ACTION}"])`,
+			)
+			.forEach((e) => (e.dataset.player = c))
 	})
 
 	//* spell Charges
-	get_elements.dom('spell').forEach((e) => {
+	document_get.dom(DOM.SPELL).forEach((e) => {
 		const type = e.dataset.type.replaceAll('-', '_').toUpperCase()
-		set_data(e, 'charge', random.int(SPELL_MAX_CHARGE[type]))
+		set_data(e, 'charge', SPELL_MAX_CHARGE[type])
 		set_data(e, 'maxCharge', SPELL_MAX_CHARGE[type])
 	})
 }
@@ -124,33 +132,32 @@ function insert_elemental({ cell, element, level = 1, health = 1 }) {
 }
 
 /**
- * @param {Element} cell
- * @param {boolean} animate
+ * @param {HTMLElement} cell
+ * @param {DIRECTION} dir
+ * ~@param {boolean} animate~
  */
-function reset_cell_elemental(cell, animate) {
+function reset_cell_elemental(cell, dir) {
 	cell.dataset.occupied = 'false'
 	// cell.dataset.element = null
 	// cell.dataset.level = null
 	cell.dataset.health = null
 	cell.dataset.hit = null
-	cell.dataset.animate = 'true'
+	cell.dataset.dir = dir
+
+	//TODO: Animations
+	// cell.dataset.animate = animate
+	// cell.dataset.animation_type = ???
 }
 
 /**
  * @param {PLAYER_TYPE} type
+ * @returns {Array<Element>}
  */
 function get_cells(type) {
-	const cells_raw = get_elements.dom('cell')
+	const cells_raw = document_get.dom(DOM.CELL)
 	if (type === PLAYER_TYPE.BLUE) return cells_raw.slice(0, 72)
 	if (type === PLAYER_TYPE.GREEN) return cells_raw.slice(72, 144)
 	return cells_raw
-}
-
-/**
- * @param {Array<Element>} cells
- */
-function clear_cells(cells) {
-	cells.flat().forEach((cell) => reset_cell_elemental(cell))
 }
 
 /**
@@ -174,9 +181,13 @@ function get_board_state(board) {
 		let empty_count = 0
 		for (let i = 0; i < BOARD_SIZE; i++) {
 			const cell = board.cells[i + j * BOARD_SIZE]
-			const elemental = board.find_elemental(cell)
+			const elemental = board.find_elemental(get_data(cell).id)
 
-			if (elemental != null && empty_count > 0) empty_count = 0 + (0 === (state += empty_count.toString(16) + '|')) //? update state & set empty_count to 0
+			if (elemental != null && empty_count > 0) {
+				state += empty_count.toString(16) + '|'
+				empty_count = 0
+			}
+
 			if (elemental != null) state += `${elemental.element[0]}${elemental.level}${elemental.health}|`
 			if (elemental == null) empty_count++
 		}
@@ -201,23 +212,23 @@ function get_board_state(board) {
  * @param {string} state
  */
 function set_board_state(board, state) {
-	board.remove_elementals()
+	board.remove_all_elementals()
 	const rows = state.split('/').map((row) => row.split('|'))
-	rows.length = BOARD_SIZE
 
 	rows.forEach((row, y) => {
 		let x = 0
 		row.forEach((data) => {
 			if (data.length === 3) {
-				const cell = board.cells[x + y * BOARD_SIZE]
+				const cell_id = get_data(board.cells[x + y * BOARD_SIZE]).id
 
 				const element = Object.values(ELEMENT).find((e) => e[0] === data[0])
 				const level = parseInt(data[1])
 				const health = parseInt(data[2])
 
 				const elemental = new Elemental(element, level)
+				elemental.health = health
 
-				board.set_elemental(cell, elemental)
+				board.set_elemental(cell_id, elemental)
 			}
 			x += data.length === 1 ? parseInt(data, 16) : 1
 		})
@@ -282,45 +293,47 @@ function prettify_board_state(board_state) {
 //#endregion
 
 //#region //* Helpers
-const get_elements = {
+const document_get = {
 	/**
 	 * @param {string} query
-	 * @returns {(Element|Array<Element>)}
+	 * @returns {?Element|Array<Element>}
 	 */
-	dom: (query) => get_elements._helper(Array.from(document.querySelectorAll(`[data-dom="${query}"]`))),
+	dom: (query) => document_get._helper(Array.from(document.querySelectorAll(`[data-dom="${query}"]`))),
 
 	/**
 	 * @param {string} query
 	 * @param {PLAYER_TYPE} player
-	 * @returns {(Element|Array<Element>)}
+	 * @returns {?Element|Array<Element>}
 	 */
-	dom_player: (query, player) => get_elements._helper(Array.from(document.querySelectorAll(`[data-player="${player}"][data-dom="${query}"]`))),
+	dom_player: (query, player) =>
+		document_get._helper(Array.from(document.querySelectorAll(`[data-player="${player}"][data-dom="${query}"]`))),
 
 	/**
-	 * query: `dom=DOM data-TYPE=VALUE`
+	 * query: `dom="DOM" data-"TYPE"="VALUE"`
 	 * @param {string} dom
 	 * @param {string} type
 	 * @param {string} value
-	 * @returns {(Element|Array<Element>)}
+	 * @returns {?Element|Array<Element>}
 	 */
-	data: (dom, type, value) => get_elements._helper(Array.from(document.querySelectorAll(`[data-${type}="${value}"][data-dom="${dom}"]`))),
+	data: (dom, type, value) =>
+		document_get._helper(Array.from(document.querySelectorAll(`[data-${type}="${value}"][data-dom="${dom}"]`))),
 
 	/**
 	 * @param {string} query
-	 * @returns {(Element|Array<Element>)}
+	 * @returns {?Element|Array<Element>}
 	 */
-	query: (query) => get_elements._helper(Array.from(document.querySelectorAll(`${query}`))),
+	query: (query) => document_get._helper(Array.from(document.querySelectorAll(`${query}`))),
 
 	/**
 	 * @param {Element} element
 	 * @param {DOM} dom
-	 * @returns {(Element|Array<Element>)}
+	 * @returns {?Element|Array<Element>}
 	 */
 	closest_dom: (element, dom) => element.closest(`[data-dom="${dom}"]`),
 
 	/**
-	 * @param {(Element|Array<Element>)} result
-	 * @returns {(Element|Array<Element>)}
+	 * @param {?Element|Array<Element>} result
+	 * @returns {?Element|Array<Element>}
 	 */
 	_helper: (result) => (result.length === 1 ? result[0] : result),
 }
@@ -330,8 +343,8 @@ const get_elements = {
  * @returns {string}
  */
 function get_data(element) {
-	if (element == null) return console.error('Invalid element', element)
-	return JSON.parse(JSON.stringify(element?.dataset))
+	if (element == null || element?.dataset == null) return console.error('Invalid element', element)
+	return JSON.parse(JSON.stringify(element.dataset))
 }
 
 /**
@@ -341,6 +354,67 @@ function get_data(element) {
  */
 function set_data(element, type, data) {
 	element.dataset[type] = data
+}
+
+const MazeSolver = {
+	/** @type {Array<Array<number>>} */
+	Maze: [],
+
+	/** @type {Array<Array<boolean>>} */
+	Visited: [],
+
+	solve(maze, A, B) {
+		/** @type {Array<Array<number>>} */
+		this.Maze = deep.copy(maze)
+		this.Maze[A.y][A.x] = 0
+
+		/** @type {Array<Array<boolean>>} */
+		this.Visited = new Array(maze.length).fill().map(() => new Array(maze[0].length).fill(false))
+
+		return this.BFS(A, B)
+	},
+
+	/**
+	 * @param {POSITION} A
+	 * @param {POSITION} B
+	 */
+	BFS(A, B) {
+		if (deep.equal(A, B)) return true
+		if (A.x < 0 || A.x >= BOARD_SIZE || A.y < 0 || A.y >= BOARD_SIZE) return false
+		if (this.Visited[A.y][A.x] === true) return false
+		if (this.Maze[A.y][A.x] === 1) return false
+
+		this.Visited[A.y][A.x] = true
+
+		const A1 = [
+			{ x: A.x + 1, y: A.y + 0 },
+			{ x: A.x - 1, y: A.y + 0 },
+			{ x: A.x + 0, y: A.y - 1 },
+			{ x: A.x + 0, y: A.y + 1 },
+		]
+
+		return this.BFS(A1[0], B) || this.BFS(A1[1], B) || this.BFS(A1[2], B) || this.BFS(A1[3], B)
+	},
+}
+
+const deep = {
+	equal: (obj1, obj2) => {
+		if (obj1 === obj2) return true
+		if (obj1 == null || obj2 == null) return false
+		if (obj1 !== Object(obj1) && obj2 !== Object(obj2)) return obj1 === obj2
+
+		if (Object.keys(obj1).length !== Object.keys(obj2).length) return false
+
+		for (let key in obj1) {
+			if (!(key in obj2)) return false
+			if (!deep.equal(obj1[key], obj2[key])) return false
+		}
+
+		return true
+	},
+	copy: (obj) => {
+		return JSON.parse(JSON.stringify(obj))
+	},
 }
 
 ;(function (global) {
