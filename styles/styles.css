@@ -23,7 +23,7 @@ html {
 
 	--cell-size: calc(7.5 * var(--vmin));
 	--cell-gap: calc(var(--vmin) * 0.2);
-	--board-size: calc(12 * var(--cell-size) + 26 * var(--cell-gap));
+	--board-size: calc(12 * var(--cell-size) + 24 * var(--cell-gap));
 
 	--action-spell-size: calc(12 * var(--vmin));
 	--controller-width: calc(5 * var(--action-spell-size));
@@ -58,6 +58,7 @@ i {
 }
 
 [data-dom='board'] {
+	width: var(--board-size);
 	aspect-ratio: 1 / 1;
 	display: grid;
 	place-items: center;
@@ -81,7 +82,14 @@ i {
 	place-items: center;
 
 	outline: var(--m) solid var(--gray-700);
-	transition: 100ms;
+	-webkit-transition: all 100ms ease-in-out;
+	-moz-transition: all 100ms ease-in-out;
+	-o-transition: all 100ms ease-in-out;
+	transition: all 100ms ease-in-out;
+	-webkit-transition-property: filter, scale, z-index, border-radius;
+	-moz-transition-property: filter, scale, z-index, border-radius;
+	-o-transition-property: filter, scale, z-index, border-radius;
+	transition-property: filter, scale, z-index, border-radius;
 }
 [data-dom='cell'][data-player='blue'] {
 	rotate: 180deg;
@@ -114,11 +122,13 @@ i {
 	place-items: center;
 
 	background-color: var(--gray-700);
-	transition: filter 100ms;
+	-webkit-transition: filter 100ms ease-in-out;
+	-moz-transition: filter 100ms ease-in-out;
+	-o-transition: filter 100ms ease-in-out;
+	transition: filter 100ms ease-in-out;
 }
 [data-dom='controller'][data-active='false'] {
 	filter: brightness(50%);
-	transition: filter 100ms;
 }
 
 .spell-selector,
@@ -224,7 +234,14 @@ i {
 	scale: 1.15;
 	z-index: 10;
 	border-radius: var(--vmin);
-	transition: 100ms;
+	-webkit-transition: all 100ms ease-in-out;
+	-moz-transition: all 100ms ease-in-out;
+	-o-transition: all 100ms ease-in-out;
+	transition: all 100ms ease-in-out;
+	-webkit-transition-property: filter, scale, border-radius;
+	-moz-transition-property: filter, scale, border-radius;
+	-o-transition-property: filter, scale, border-radius;
+	transition-property: filter, scale, border-radius;
 }
 
 /*   modal fuckery   */
@@ -242,7 +259,10 @@ i {
 	background: rgba(0 0 0 / 0.67);
 
 	opacity: 0;
-	transition: 200ms;
+	-webkit-transition: opacity 200ms ease-in-out;
+	-moz-transition: opacity 200ms ease-in-out;
+	-o-transition: opacity 200ms ease-in-out;
+	transition: opacity 200ms ease-in-out;
 	visibility: hidden;
 }
 .modal[data-active='true'] {
@@ -273,7 +293,14 @@ i {
 
 :is(.open-modal, .close-modal),
 :is(.open-modal, .close-modal)::before {
-	transition: 500ms;
+	-webkit-transition: all 500ms ease-in-out;
+	-moz-transition: all 500ms ease-in-out;
+	-o-transition: all 500ms ease-in-out;
+	transition: all 500ms ease-in-out;
+	-webkit-transition-property: opacity, rotate, scale, visibility;
+	-moz-transition-property: opacity, rotate, scale, visibility;
+	-o-transition-property: opacity, rotate, scale, visibility;
+	transition-property: opacity, rotate, scale, visibility;
 }
 
 [data-dom='modal-container']:has(.modal[data-active='false']) .open-modal {
@@ -347,7 +374,14 @@ i {
 	font-size: calc(8 * var(--vmin));
 	color: var(--gray-600);
 	cursor: pointer;
-	transition: 100ms;
+	-webkit-transition: all 100ms ease-in-out;
+	-moz-transition: all 100ms ease-in-out;
+	-o-transition: all 100ms ease-in-out;
+	transition: all 100ms ease-in-out;
+	-webkit-transition-property: box-shadow, font-size, color;
+	-moz-transition-property: box-shadow, font-size, color;
+	-o-transition-property: box-shadow, font-size, color;
+	transition-property: box-shadow, font-size, color;
 }
 .tab-button[data-active='true'] {
 	box-shadow: 0 0 var(--vmin) var(--vmin) var(--gray-900);
@@ -394,7 +428,14 @@ i {
 	background: var(--gray-800);
 	color: var(--gray-100);
 
-	transition: 200ms;
+	-webkit-transition: all 200ms ease-in-out;
+	-moz-transition: all 200ms ease-in-out;
+	-o-transition: all 200ms ease-in-out;
+	transition: all 200ms ease-in-out;
+	-webkit-transition-property: font-size, width, color;
+	-moz-transition-property: font-size, width, color;
+	-o-transition-property: font-size, width, color;
+	transition-property: font-size, width, color;
 }
 .submit-settings:hover {
 	font-size: calc(10 * var(--vmin));
@@ -540,19 +581,31 @@ p.spell.meteor-shower::first-line {
 	color: var(--red-500);
 }
 
-/*   elemental svg fuckery   */
+/*!   elemental svg fuckery   */
 svg {
 	overflow: hidden;
 	position: absolute;
-	transition: 500ms;
 	display: block;
 	max-width: 100%;
+
+	-webkit-transition: all 1s ease-in-out;
+	-moz-transition: all 1s ease-in-out;
+	-o-transition: all 1s ease-in-out;
+	transition: all 1s ease-in-out;
+	-webkit-transition-property: opacity, rotate, scale;
+	-moz-transition-property: opacity, rotate, scale;
+	-o-transition-property: opacity, rotate, scale;
+	transition-property: opacity, rotate, scale;
 }
 
 [data-dom='cell'][data-occupied='true'] > svg {
+	rotate: 0deg;
+	scale: 1;
 	opacity: 1;
 }
 [data-dom='cell'][data-occupied='false'] > svg {
+	rotate: 720deg;
+	scale: 0;
 	opacity: 0;
 }
 
@@ -565,7 +618,7 @@ svg {
 	stroke-width: 3;
 }
 
-/*   elemental gradient color fuckery   */
+/*!   elemental gradient color fuckery   */
 [data-dom='cell'][data-element='air'] .elemental-shape {
 	fill: url('#gradient-air');
 }
@@ -585,7 +638,7 @@ svg {
 	fill: url('#gradient-energy');
 }
 
-/*   elemental shape fuckery   */
+/*!   elemental shape fuckery   */
 [data-dom='cell'][data-level='1'] .elemental-shape {
 	d: path('M 0,0 M 57,23 Q 50,10 43,23 L 14,73 Q 07,85 21,85 L 79,85 Q 94,85 87,73 L 57,23 Z M 100,120');
 
@@ -605,27 +658,39 @@ svg {
 	translate: 5% 7.5%;
 }
 
-/*   elemental health fuckery   */
+/*!   elemental health fuckery   */
 :is(path, circle):not(.elemental-shape) {
 	scale: 0.3;
 	translate: calc(50% * 0.7) calc(100% * 0.7);
 }
-circle.elemental-health-background {
+[data-dom='cell'][data-occupied='true'] circle.elemental-health-background {
 	fill: var(--elemental-health-boundary-filler);
 	fill-opacity: var(--elemental-health-boundary-filler-opacity);
 	stroke: none;
 }
-circle.elemental-health-boundary {
+[data-dom='cell'][data-occupied='true'] circle.elemental-health-boundary {
 	fill: none;
 	stroke: var(--elemental-health-boundary);
 	stroke-width: 8;
 }
-.elemental-health-life {
+[data-dom='cell'][data-occupied='true'] .elemental-health-life {
 	fill: var(--elemental-health-life);
 	stroke: none;
 }
+[data-dom='cell'][data-occupied='false'] circle.elemental-health-background {
+	fill: none;
+	stroke: none;
+}
+[data-dom='cell'][data-occupied='false'] circle.elemental-health-boundary {
+	fill: none;
+	stroke: none;
+}
+[data-dom='cell'][data-occupied='false'] .elemental-health-life {
+	fill: none;
+	stroke: none;
+}
 
-/* *   life fuckery   */
+/*!   life fuckery   */
 [data-dom='cell'][data-level='1'][data-health='1'] .elemental-health-life {
 	d: path('M 50,50 L 50,5 A 45,45 0 0,0 50,95 A 45,45 0 0,0 50,5');
 }

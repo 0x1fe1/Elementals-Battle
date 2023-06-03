@@ -1,5 +1,5 @@
 /*
-*   LANDSCAPE IS HORIZONTAL   PORTRAIT IS VERTICAL
+*   LANDSCAPE IS HORIZONTAL  &  PORTRAIT IS VERTICAL
 */
 
 @media (orientation: landscape) {
@@ -11,7 +11,7 @@
 		rotate: -90deg;
 	}
 
-	/* .modal {
+	/*  .modal {
 		width: calc(100 * var(--vmax));
 		height: calc(100 * var(--vmin));
 	}
@@ -27,3 +27,7 @@
 			'water-input water-label nature-input nature-label energy-input energy-label';
 	} */
 }
+
+/* *:not(html) {
+	background-color: hsla(0, 100%, 50%, 0.05);
+} */
