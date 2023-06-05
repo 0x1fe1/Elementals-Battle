@@ -4,4 +4,4 @@ setup()
 
 const game = new Game()
 
-set_board_state.DEBUG()
+// set_board_state.DEBUG()
