@@ -101,12 +101,22 @@ i {
 	&[data-player='blue']:before {
 		background: var(--cell-blue);
 	}
+
 	&[data-shade='light']:before {
 		filter: brightness(120%) contrast(80%);
 	}
 	&[data-shade='dark']:before {
 		filter: brightness(90%) contrast(80%);
 	}
+	/* 
+	&[data-attacked='true']:before {
+		background: var(--fuchsia-500);
+	}
+	&[data-expired='true']:before {
+		background: var(--cell-expired);
+		filter: none;
+		border-radius: 25%;
+	} */
 }
 
 [data-dom='controller'] {
@@ -172,6 +182,9 @@ i {
 	position: relative;
 	z-index: 0;
 
+	transition: all 100ms ease-in-out;
+	transition-property: filter, scale, z-index, border-radius;
+
 	&[data-type='meteor-shower'] {
 		background-image: url('../images/meteor.png');
 	}
@@ -217,6 +230,9 @@ i {
 	border: calc(0.05 * var(--action-spell-size)) solid var(--gray-700);
 
 	z-index: 0;
+
+	transition: all 100ms ease-in-out;
+	transition-property: filter, scale, z-index, border-radius;
 }
 
 :is([data-dom='cell'], [data-dom='spell'], [data-dom='action'])[data-active='true'] {
@@ -225,7 +241,7 @@ i {
 	z-index: 10;
 	border-radius: var(--vmin);
 	transition: all 100ms ease-in-out;
-	transition-property: filter, scale, border-radius;
+	transition-property: filter, scale, z-index, border-radius;
 }
 
 /*   modal fuckery   */

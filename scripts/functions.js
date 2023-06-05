@@ -19,11 +19,13 @@ function updateViewportSize() {
 function insert_default_cells(board) {
 	for (let i = 0; i < BOARD_SIZE; i++)
 		for (let j = 0; j < BOARD_SIZE; j++)
+			// data-expired="${random.float() < 0.1}" data-attacked="${random.float() < 0.1}"
 			board.innerHTML += `
             <div data-dom="cell" data-occupied="false" data-dir="null" 
                 data-x="${j}" data-y="${i}" data-id="${j.toString(16)}-${i.toString(16)}"  
                 data-player="${i < 6 ? PLAYER_TYPE.BLUE : PLAYER_TYPE.GREEN}" 
-                data-shade="${i % 2 === j % 2 ? 'light' : 'dark'}"></div>`
+                data-shade="${i % 2 === j % 2 ? 'light' : 'dark'}">
+            </div>`
 
 	document_get.dom(DOM.CELL).forEach((cell) => {
 		cell.innerHTML += `
@@ -165,7 +167,7 @@ function get_cells(type) {
  * @param {boolean} forced_state
  */
 function toggle_active(elements, forced_state) {
-	;[elements].flat(100).forEach((e) => set_data(e, 'active', forced_state ?? !(e.dataset.active == 'true')))
+	;[elements].flat(3).forEach((e) => set_data(e, 'active', forced_state ?? e.dataset.active == 'false'))
 }
 
 /**
@@ -427,6 +429,9 @@ const deep = {
 	rng.int = function (b = 1, a = 0) {
 		if (typeof a !== 'number' || typeof b !== 'number') return console.error('random function error: ', arguments)
 		return Math.floor(rng.float(a, b))
+	}
+	rng.boolean = function () {
+		return Math.random() < 0.5
 	}
 	rng.sign = function () {
 		return Math.round(Math.random()) * 2 - 1

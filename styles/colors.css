@@ -4,6 +4,8 @@
 
 	--cell-blue: var(--blue-500);
 	--cell-green: var(--green-500);
+	--cell-attacked: var(--red-400);
+	--cell-expired: var(--gray-600);
 
 	--gradient-air-1: var(--cyan-500);
 	--gradient-air-2: var(--sky-300);
