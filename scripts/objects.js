@@ -147,7 +147,7 @@ class CLICK_LOG {
 		CLICK_LOG.last = new_last
 		toggle_active(CLICK_LOG.last.self, true)
 
-		console.log('CLICK_LOG: ', { history: CLICK_LOG.history, last: CLICK_LOG.last })
+		// console.log('CLICK_LOG: ', { history: CLICK_LOG.history, last: CLICK_LOG.last })
 	}
 
 	/**
@@ -181,17 +181,20 @@ class Game {
 
 			//* prevent drag to another element causing it to activate
 			element.addEventListener('pointerdown', (e) => {
+				// console.log('pointer down 1 - ', random.float())
 				last_pointer_id = e.pointerId
 			})
 
 			//* prevent dragging over the element
 			element.addEventListener('pointermove', (e) => {
+				// console.log('pointer move 2 - ', random.float())
 				if (e.pointerType === 'mouse') return
 				has_moved = true
 			})
 
 			//* actual event
 			element.addEventListener('pointerup', (e) => {
+				// console.log('pointer up   3 - ', random.float())
 				if (last_pointer_id !== e.pointerId) return
 				if (has_moved) return (has_moved = false)
 
@@ -208,11 +211,12 @@ class Game {
 					return
 				if (closest_element == null) return
 
+				const data = get_data(closest_element)
 				CLICK_LOG.update({
-					self: closest_element ?? null,
-					player: get_data(closest_element).player ?? null,
-					type: get_data(closest_element).type ?? null,
-					dom: get_data(closest_element).dom ?? null,
+					self: closest_element,
+					player: data.player,
+					type: data.type ?? null,
+					dom: data.dom,
 				})
 			})
 		}
@@ -250,14 +254,19 @@ class Game {
 				else if (fn(2).dom === DOM.ACTION && fn(2).type === ACTION.ATTACK) this.handle_attack()
 
 				CLICK_LOG.update(null)
-				toggle_active(fn(1).self, true)
-				setTimeout(() => toggle_active(fn(1).self, false), 1000)
+				// toggle_active(fn(1).self, true)
+				// setTimeout(function () {
+				// 	toggle_active(fn(1).self, false)
+				// }, 1)
 			}
 
 		game_end: if (this.state === GAME_STATE.FINISHED) {
 			console.log("GAME OVER - how in the Lord's name did you get here?")
 			alert("GAME OVER - how in the Lord's name did you get here?")
-		} else setTimeout(() => this.game_loop(), 1)
+		} else
+			setTimeout(function () {
+				game.game_loop()
+			}, 1)
 	}
 
 	handle_move() {
@@ -270,6 +279,7 @@ class Game {
 	handle_skip() {
 		this.controllers.blue.toggle_active()
 		this.controllers.green.toggle_active()
+		this.board.merge_cells(this.active_player)
 		this.active_player = this.active_player == PLAYER_TYPE.BLUE ? PLAYER_TYPE.GREEN : PLAYER_TYPE.BLUE
 	}
 
@@ -432,6 +442,7 @@ class Board {
 		return this
 	}
 
+	//TODO
 	/**
 	 * @param {PLAYER_TYPE} player
 	 * @returns {Board}
@@ -449,8 +460,8 @@ class Board {
 		const to_remove = {
 			/** @type {Array<CELL_ID>} */
 			id: [],
-			/** @type {Array<DIRECTION>} */
-			dir: [],
+			// /** @type {Array<DIRECTION>} */
+			// dir: [], //TODO
 		}
 
 		const to_ascend = {
@@ -468,53 +479,29 @@ class Board {
 
 				results.forEach((result) => {
 					to_remove.id.push(check_area[result.config[0]])
-					to_remove.dir.push(check_area[result.dir[0]])
+					// to_remove.dir.push(check_area[result.dir[0]])
 
 					to_ascend.id.push(check_area[result.config[1]])
 
 					to_remove.id.push(check_area[result.config[2]])
-					to_remove.dir.push(check_area[result.dir[1]])
+					// to_remove.dir.push(check_area[result.dir[1]])
 				})
 			}
 		}
 
-		//? remove duplicates inside
-		to_remove.id.forEach((id, i) => {
-			if (to_remove.id.indexOf(id) !== i) {
-				const index = to_remove.id.indexOf(id)
-				to_remove.id.splice(index, 1)
-			}
-		})
+		const to_remove_id_set = new Set(to_remove.id)
+		const to_ascend_id_set = new Set(to_ascend.id)
+		for (const id of to_ascend_id_set) to_remove_id_set.delete(id)
 
-		//? remove duplicates inside
-		to_ascend.id.forEach((id, i) => {
-			if (to_ascend.id.indexOf(id) !== i) {
-				const index = to_ascend.id.indexOf(id)
-				to_ascend.id.splice(index, 1)
-			}
-		})
-
-		//? remove duplicates outside
-		to_ascend.id.forEach((id, i) => {
-			if (to_remove.id.includes(id)) {
-				const index = to_remove.id.indexOf(id)
-				to_remove.id.splice(index, 1)
-				to_remove.dir.splice(index, 1)
-			}
-		})
+		// console.log({ to_remove_id_set, to_ascend_id_set })
 
 		const ascended = []
 
-		to_remove.id.forEach((id) => {
-			this.remove_elemental(id, id.dir)
-		})
-		to_ascend.id.forEach((id) => {
-			ascended.push(this.find_elemental(id).ascend().level)
-		})
+		for (const id of to_remove_id_set) this.remove_elemental(id)
+		for (const id of to_ascend_id_set) ascended.push(this.find_elemental(id).ascend().level)
 
-		// console.log({ to_remove, to_ascend, ascended })
 		ascended.forEach((level) => {
-			game.controllers.player.add_charge(level === 2 ? 1 : level === 3 ? 2 : 0)
+			game.controllers[player].add_charge(level === 2 ? 1 : level === 3 ? 2 : 0)
 		})
 
 		return this
@@ -696,12 +683,12 @@ class Elemental {
 		return true
 	}
 
-	/** @returns {boolean} */
+	/** @returns {Elemental} */
 	ascend() {
 		this.level = Math.min(this.level + 1, LEVEL[2])
 		this.health = MAX_HEALTH[this.level - 1]
 		this.update_cell()
-		return true
+		return this
 	}
 
 	/** @returns {boolean} */

@@ -94,7 +94,7 @@ function set_settings_events() {
 		// game.board.insert_elementals()
 		setTimeout(() => {
 			document_get.query('.close-modal').click()
-		}, 1000)
+		}, 1)
 	})
 }
 
@@ -346,7 +346,8 @@ const document_get = {
  */
 function get_data(element) {
 	if (element == null || element?.dataset == null) return console.error('Invalid element', element)
-	return JSON.parse(JSON.stringify(element.dataset))
+	// return JSON.parse(JSON.stringify(element.dataset))
+	return { ...element.dataset }
 }
 
 /**
